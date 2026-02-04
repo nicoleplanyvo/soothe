@@ -621,6 +621,7 @@
       calendarEvents: [],
       trackedMeals: [],
       caloriesGoal: 1800,
+      userProfile: { gender: '', age: 0, height: 0, weight: 0, activity: '' },
       waterGlasses: 0,
       weeklyWorkouts: [0,0,0,0,0,0,0],
       selfcare: { mood: null, periodStart: null, cycleLength: 28, cycleLog: {} }
@@ -633,6 +634,7 @@
     if (!appData.selfcare.cycleLog) appData.selfcare.cycleLog = {};
     if (appData.selfcare.symptoms) { delete appData.selfcare.symptoms; delete appData.selfcare.cycleDay; }
     if (!appData.budget) appData.budget = { total: 0, categories: [] };
+    if (!appData.userProfile) appData.userProfile = { gender: '', age: 0, height: 0, weight: 0, activity: '' };
     if (!appData.calendarEvents) appData.calendarEvents = [];
 
     // UI State (not persisted)
@@ -770,7 +772,13 @@
         html: () => `<div class="form-group"><label class="form-label">Fitness-Level</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Einsteiger</button><button class="option-btn" onclick="selectOption(this)">Fortgeschritten</button><button class="option-btn" onclick="selectOption(this)">Profi</button></div></div><div class="slider-container"><div class="slider-header"><label class="form-label">Workouts pro Woche</label><span class="slider-value" id="workoutsValue">3x</span></div><input type="range" class="slider" min="1" max="7" value="3" oninput="updateSlider('workouts', this.value, 'x')"></div>`
       },
       ernaehrung: { id: 'ernaehrung', icon: 'restaurant', iconClass: 'ernaehrung', title: 'Deine Ernaehrung', subtitle: 'Wie ernaehrst du dich?',
-        html: () => `<div class="form-group"><label class="form-label">Ernaehrungsform</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Alles</button><button class="option-btn" onclick="selectOption(this)">Vegetarisch</button><button class="option-btn" onclick="selectOption(this)">Vegan</button></div></div><div class="slider-container"><div class="slider-header"><label class="form-label">Kalorienziel</label><span class="slider-value" id="caloriesValue">1.800 kcal</span></div><input type="range" class="slider" min="1200" max="3000" step="50" value="1800" oninput="updateSlider('calories', this.value, ' kcal', true)"></div>`
+        html: () => `<div class="form-group"><label class="form-label">Ernaehrungsform</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Alles</button><button class="option-btn" onclick="selectOption(this)">Vegetarisch</button><button class="option-btn" onclick="selectOption(this)">Vegan</button></div></div>
+        <div class="form-group"><label class="form-label">Kalorienziel bestimmen</label>
+          <button class="option-btn selected" style="width:100%;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;justify-content:center;" onclick="openOnboardingCalorieCalc()"><span class="material-symbols-outlined" style="font-size:20px;">calculate</span>Kalorienbedarfsrechner nutzen</button>
+          <div style="text-align:center;font-size:12px;color:var(--charcoal-light);margin:8px 0;">oder manuell waehlen:</div>
+        </div>
+        <div class="slider-container"><div class="slider-header"><label class="form-label">Kalorienziel</label><span class="slider-value" id="caloriesValue">${(appData.caloriesGoal||1800).toLocaleString('de-DE')} kcal</span></div><input type="range" class="slider" min="1200" max="3500" step="50" value="${appData.caloriesGoal||1800}" oninput="updateSlider('calories', this.value, ' kcal', true)"></div>`,
+        onNext: () => { const slider = document.querySelector('.slider-container input[type=range]'); if (slider) { appData.caloriesGoal = parseInt(slider.value); } }
       },
       karriere: { id: 'karriere', icon: 'work', iconClass: 'karriere', title: 'Deine Karriere', subtitle: 'Was sind deine beruflichen Ziele?',
         html: () => `<div class="form-group"><label class="form-label">Status</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Angestellt</button><button class="option-btn" onclick="selectOption(this)">Selbststaendig</button><button class="option-btn" onclick="selectOption(this)">Elternzeit</button></div></div>`
@@ -1036,8 +1044,22 @@
 
     function renderErnaehrungDetail() {
       const calConsumed = state.caloriesConsumed;
+      const calGoal = state.caloriesGoal;
+      const calPct = calGoal ? Math.min(100, Math.round(calConsumed / calGoal * 100)) : 0;
+      const remaining = Math.max(0, calGoal - calConsumed);
       return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Ernaehrung</h1><button class="header-btn" onclick="openMealModal()"><span class="material-symbols-outlined">add</span></button></header>
-        <div class="stats-row"><div class="stat-card"><div class="stat-value">${calConsumed.toLocaleString('de-DE')}</div><div class="stat-label">von ${state.caloriesGoal.toLocaleString('de-DE')} kcal</div></div><div class="stat-card"><div class="stat-value">${appData.waterGlasses}/8</div><div class="stat-label">Glaeser Wasser</div></div></div>
+        <div style="margin:20px;padding:24px;background:var(--ernaehrung-bg);border-radius:var(--radius-md);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div><div style="font-size:32px;font-weight:700;font-family:var(--font-display);color:var(--charcoal);">${calConsumed.toLocaleString('de-DE')}</div><div style="font-size:13px;color:var(--charcoal-light);">von ${calGoal.toLocaleString('de-DE')} kcal</div></div>
+            <div style="text-align:right;"><div style="font-size:20px;font-weight:600;color:var(--ernaehrung);">${remaining.toLocaleString('de-DE')}</div><div style="font-size:13px;color:var(--charcoal-light);">uebrig</div></div>
+          </div>
+          <div style="height:10px;background:var(--sand);border-radius:5px;overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:${calPct}%;background:${calPct>100?'var(--danger)':calPct>80?'var(--warning)':'var(--ernaehrung)'};border-radius:5px;transition:width 0.3s;"></div></div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="openCalorieCalculatorModal()" style="flex:1;padding:10px;border:1.5px solid var(--ernaehrung);border-radius:var(--radius-sm);background:none;cursor:pointer;font-family:var(--font-body);font-size:13px;color:var(--ernaehrung);display:flex;align-items:center;justify-content:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:18px;">calculate</span>Bedarfsrechner</button>
+            <button onclick="openManualCalorieGoalModal()" style="flex:1;padding:10px;border:1.5px solid var(--charcoal-light);border-radius:var(--radius-sm);background:none;cursor:pointer;font-family:var(--font-body);font-size:13px;color:var(--charcoal-light);display:flex;align-items:center;justify-content:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:18px;">edit</span>Ziel anpassen</button>
+          </div>
+        </div>
+        <div class="stats-row"><div class="stat-card"><div class="stat-value">${appData.waterGlasses}/8</div><div class="stat-label">Glaeser Wasser</div></div><div class="stat-card"><div class="stat-value">${appData.trackedMeals.length}</div><div class="stat-label">Mahlzeiten heute</div></div></div>
         <div class="section"><div class="section-header"><h2 class="section-title">Wasser Tracker</h2></div><div style="display:flex;gap:8px;flex-wrap:wrap;">${[1,2,3,4,5,6,7,8].map(i => `<div onclick="setWater(${i})" style="width:40px;height:40px;border-radius:50%;background:${i<=appData.waterGlasses?'var(--ernaehrung)':'var(--sand)'};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;"><span class="material-symbols-outlined" style="color:${i<=appData.waterGlasses?'white':'var(--charcoal-light)'};font-size:20px;">water_drop</span></div>`).join('')}</div></div>
         ${appData.trackedMeals.length ? `<div class="section"><div class="section-header"><h2 class="section-title">Heutige Mahlzeiten</h2></div>${appData.trackedMeals.map(m => `<div class="workout-card"><div class="workout-header"><div class="workout-title">${m.name || m.type}</div><div style="display:flex;gap:8px;align-items:center;"><span class="workout-badge planned">${m.calories} kcal</span><button onclick="event.stopPropagation();confirmDelete('Mahlzeit loeschen?',()=>{appData.trackedMeals=appData.trackedMeals.filter(x=>x.id!==${m.id})})" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">delete</span></button></div></div></div>`).join('')}</div>` : ''}
         <div class="section"><div class="pillar-cards">
@@ -1380,6 +1402,153 @@
           appData.mealPlan[day][slot] = { recipeId: r.id, title: r.title, kcal: r.calories };
           showToast(r.title + ' eingeplant!');
         }
+      }});
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // KALORIENBEDARFSRECHNER (Mifflin-St Jeor Formel)
+    // ══════════════════════════════════════════════════════════════
+    function calculateCalories(gender, age, height, weight, activity, goal) {
+      // Mifflin-St Jeor: BMR berechnen
+      let bmr;
+      if (gender === 'weiblich') {
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+      } else {
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+      }
+      // Aktivitaetsfaktor
+      const factors = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
+      const tdee = Math.round(bmr * (factors[activity] || 1.55));
+      // Ziel-Anpassung
+      if (goal === 'abnehmen') return Math.round(tdee - 500);
+      if (goal === 'zunehmen') return Math.round(tdee + 300);
+      return tdee; // halten
+    }
+
+    function openCalorieCalculatorModal() {
+      const p = appData.userProfile || {};
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay active';
+      overlay.id = 'calorieCalcModal';
+      overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); } };
+      overlay.innerHTML = `<div class="modal" style="max-height:90vh;overflow-y:auto;">
+        <div class="modal-header"><h2 class="modal-title">Kalorienbedarfsrechner</h2><button class="modal-close" onclick="document.getElementById('calorieCalcModal').remove()"><span class="material-symbols-outlined">close</span></button></div>
+        <div style="padding:0 4px;">
+          <div class="form-group"><label class="form-label">Geschlecht</label>
+            <div class="option-group" id="cc_gender">
+              <button class="option-btn ${p.gender==='weiblich'?'selected':(!p.gender?'selected':'')}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="weiblich">Weiblich</button>
+              <button class="option-btn ${p.gender==='maennlich'?'selected':''}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="maennlich">Maennlich</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group"><label class="form-label">Alter</label><input type="number" class="form-input" id="cc_age" placeholder="30" min="14" max="100" value="${p.age||''}"></div>
+            <div class="form-group"><label class="form-label">Groesse (cm)</label><input type="number" class="form-input" id="cc_height" placeholder="165" min="100" max="250" value="${p.height||''}"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Gewicht (kg)</label><input type="number" class="form-input" id="cc_weight" placeholder="65" min="30" max="300" step="0.1" value="${p.weight||''}"></div>
+          <div class="form-group"><label class="form-label">Aktivitaetslevel</label>
+            <div class="option-group" id="cc_activity" style="flex-wrap:wrap;">
+              <button class="option-btn ${p.activity==='sedentary'?'selected':''}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="sedentary" style="font-size:12px;">Sitzend<br><span style="font-size:10px;opacity:0.7;">Bueroarbeit</span></button>
+              <button class="option-btn ${p.activity==='light'?'selected':''}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="light" style="font-size:12px;">Leicht aktiv<br><span style="font-size:10px;opacity:0.7;">1-2x Sport/Wo</span></button>
+              <button class="option-btn ${p.activity==='moderate'?'selected':(!p.activity?'selected':'')}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="moderate" style="font-size:12px;">Moderat<br><span style="font-size:10px;opacity:0.7;">3-5x Sport/Wo</span></button>
+              <button class="option-btn ${p.activity==='active'?'selected':''}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="active" style="font-size:12px;">Aktiv<br><span style="font-size:10px;opacity:0.7;">6-7x Sport/Wo</span></button>
+              <button class="option-btn ${p.activity==='very_active'?'selected':''}" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="very_active" style="font-size:12px;">Sehr aktiv<br><span style="font-size:10px;opacity:0.7;">Leistungssport</span></button>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Ziel</label>
+            <div class="option-group" id="cc_goal">
+              <button class="option-btn" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="abnehmen"><span class="material-symbols-outlined" style="font-size:18px;">trending_down</span>Abnehmen</button>
+              <button class="option-btn selected" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="halten"><span class="material-symbols-outlined" style="font-size:18px;">balance</span>Halten</button>
+              <button class="option-btn" onclick="this.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')" data-value="zunehmen"><span class="material-symbols-outlined" style="font-size:18px;">trending_up</span>Aufbauen</button>
+            </div>
+          </div>
+          <div id="cc_result" style="display:none;margin-top:8px;padding:20px;background:var(--ernaehrung-bg);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:13px;color:var(--charcoal-light);margin-bottom:4px;">Dein empfohlener Tagesbedarf</div>
+            <div id="cc_result_value" style="font-size:36px;font-weight:700;font-family:var(--font-display);color:var(--ernaehrung);"></div>
+            <div style="font-size:13px;color:var(--charcoal-light);margin-top:2px;">Kalorien pro Tag</div>
+            <div id="cc_result_details" style="margin-top:12px;font-size:12px;color:var(--charcoal-light);line-height:1.6;"></div>
+          </div>
+        </div>
+        <div class="modal-footer" style="flex-direction:column;gap:8px;">
+          <button class="btn btn-primary" style="width:100%;" onclick="runCalorieCalculation()"><span class="material-symbols-outlined">calculate</span>Berechnen</button>
+          <button class="btn btn-secondary" id="cc_apply_btn" style="width:100%;display:none;" onclick="applyCalorieResult()"><span class="material-symbols-outlined">check</span>Als Kalorienziel uebernehmen</button>
+        </div>
+      </div>`;
+      document.body.appendChild(overlay);
+      setTimeout(() => { const first = overlay.querySelector('input'); if (first) first.focus(); }, 100);
+    }
+
+    function runCalorieCalculation() {
+      const genderBtn = document.querySelector('#cc_gender .option-btn.selected');
+      const gender = genderBtn ? genderBtn.dataset.value : 'weiblich';
+      const age = parseInt(document.getElementById('cc_age').value) || 0;
+      const height = parseInt(document.getElementById('cc_height').value) || 0;
+      const weight = parseFloat(document.getElementById('cc_weight').value) || 0;
+      const actBtn = document.querySelector('#cc_activity .option-btn.selected');
+      const activity = actBtn ? actBtn.dataset.value : 'moderate';
+      const goalBtn = document.querySelector('#cc_goal .option-btn.selected');
+      const goal = goalBtn ? goalBtn.dataset.value : 'halten';
+
+      if (!age || !height || !weight) {
+        showToast('Bitte fulle Alter, Groesse und Gewicht aus');
+        return;
+      }
+
+      const result = calculateCalories(gender, age, height, weight, activity, goal);
+      window._calcCalorieResult = result;
+
+      // Profil speichern
+      appData.userProfile = { gender, age, height, weight, activity };
+      saveData();
+
+      // Ergebnis anzeigen
+      const resultDiv = document.getElementById('cc_result');
+      const resultVal = document.getElementById('cc_result_value');
+      const resultDetails = document.getElementById('cc_result_details');
+      const applyBtn = document.getElementById('cc_apply_btn');
+
+      resultVal.textContent = result.toLocaleString('de-DE') + ' kcal';
+
+      // BMR und TDEE fuer Details berechnen
+      let bmr;
+      if (gender === 'weiblich') { bmr = 10 * weight + 6.25 * height - 5 * age - 161; }
+      else { bmr = 10 * weight + 6.25 * height - 5 * age + 5; }
+      const factors = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
+      const tdee = Math.round(bmr * (factors[activity] || 1.55));
+      const goalLabels = { abnehmen: 'Abnehmen (-500 kcal)', halten: 'Gewicht halten', zunehmen: 'Aufbauen (+300 kcal)' };
+
+      resultDetails.innerHTML = `Grundumsatz (BMR): ${Math.round(bmr).toLocaleString('de-DE')} kcal<br>Gesamtumsatz (TDEE): ${tdee.toLocaleString('de-DE')} kcal<br>Ziel: ${goalLabels[goal] || 'Halten'}<br><span style="font-size:11px;opacity:0.7;">Berechnung nach Mifflin-St Jeor Formel</span>`;
+
+      resultDiv.style.display = 'block';
+      applyBtn.style.display = 'flex';
+    }
+
+    function applyCalorieResult() {
+      if (window._calcCalorieResult) {
+        appData.caloriesGoal = window._calcCalorieResult;
+        saveData();
+        showToast('Kalorienziel auf ' + window._calcCalorieResult.toLocaleString('de-DE') + ' kcal gesetzt!');
+        document.getElementById('calorieCalcModal').remove();
+        // Update slider in onboarding if present
+        const slider = document.querySelector('.slider-container input[type=range]');
+        const sliderVal = document.getElementById('caloriesValue');
+        if (slider) { slider.value = window._calcCalorieResult; }
+        if (sliderVal) { sliderVal.textContent = window._calcCalorieResult.toLocaleString('de-DE') + ' kcal'; }
+        render();
+        delete window._calcCalorieResult;
+      }
+    }
+
+    function openOnboardingCalorieCalc() {
+      openCalorieCalculatorModal();
+    }
+
+    function openManualCalorieGoalModal() {
+      openFormModal({ title: 'Kalorienziel anpassen', fields: [
+        { key: 'goal', label: 'Neues Kalorienziel (kcal)', type: 'number', placeholder: '1800', min: 800, step: 50, value: appData.caloriesGoal || 1800 }
+      ], onSave: (d) => {
+        const val = d.goal || 1800;
+        appData.caloriesGoal = val;
+        showToast('Kalorienziel auf ' + val.toLocaleString('de-DE') + ' kcal gesetzt!');
       }});
     }
 
