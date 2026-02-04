@@ -585,8 +585,8 @@
       ],
       
       children: [
-        { name: 'Emma', age: 7, avatar: '👧' },
-        { name: 'Max', age: 4, avatar: '👦' }
+        { name: 'Emma', age: 7, icon: 'face', color: 'var(--familie)' },
+        { name: 'Max', age: 4, icon: 'face_6', color: 'var(--sport)' }
       ],
       
       transactions: [
@@ -1467,7 +1467,7 @@
             <div style="display: flex; gap: 16px;">
               ${MOCK_DATA.children.map(c => `
                 <div style="flex: 1; background: var(--familie-bg); padding: 20px; border-radius: var(--radius-md); text-align: center;">
-                  <div style="font-size: 40px; margin-bottom: 8px;">${c.avatar}</div>
+                  <div style="width: 48px; height: 48px; border-radius: 50%; background: ${c.color}; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;"><span class="material-symbols-outlined" style="font-size: 28px; color: white;">${c.icon}</span></div>
                   <div style="font-weight: 600;">${c.name}</div>
                   <div style="font-size: 13px; color: var(--charcoal-light);">${c.age} Jahre</div>
                 </div>
@@ -1848,11 +1848,11 @@
     // ══════════════════════════════════════════════════════════════
     function renderSelfcareDetail() {
       const moods = [
-        { emoji: '&#128554;', label: 'Muede', value: 1 },
-        { emoji: '&#128532;', label: 'Traurig', value: 2 },
-        { emoji: '&#128528;', label: 'Okay', value: 3 },
-        { emoji: '&#128522;', label: 'Gut', value: 4 },
-        { emoji: '&#129321;', label: 'Super', value: 5 }
+        { icon: 'bedtime', label: 'Muede', value: 1, color: '#A8B4C9' },
+        { icon: 'sentiment_dissatisfied', label: 'Traurig', value: 2, color: '#D4A5A5' },
+        { icon: 'sentiment_neutral', label: 'Okay', value: 3, color: '#C9A87C' },
+        { icon: 'sentiment_satisfied', label: 'Gut', value: 4, color: '#9CB8A8' },
+        { icon: 'sentiment_very_satisfied', label: 'Super', value: 5, color: '#7CB87C' }
       ];
       const prompt = MOCK_DATA.selfcare.journalPrompts[Math.floor(Math.random() * MOCK_DATA.selfcare.journalPrompts.length)];
       const exercise = MOCK_DATA.selfcare.miniExercises[Math.floor(Math.random() * MOCK_DATA.selfcare.miniExercises.length)];
@@ -1874,7 +1874,7 @@
             <div style="display: flex; justify-content: space-between; gap: 8px;">
               ${moods.map(m => `
                 <div onclick="selectMood(${m.value})" style="flex: 1; text-align: center; padding: 14px 4px; background: ${state.selectedMood === m.value ? 'var(--selfcare-bg)' : 'var(--cream)'}; border: 2px solid ${state.selectedMood === m.value ? 'var(--selfcare)' : 'transparent'}; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
-                  <div style="font-size: 28px;">${m.emoji}</div>
+                  <span class="material-symbols-outlined" style="font-size: 32px; color: ${state.selectedMood === m.value ? m.color : 'var(--charcoal-light)'};">${m.icon}</span>
                   <div style="font-size: 11px; color: var(--charcoal-light); margin-top: 4px;">${m.label}</div>
                 </div>
               `).join('')}
