@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Soothe – Life, gently organized</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    :root {
+      --lotus: #C9A88C;
+      --lotus-light: #DCC4AD;
+      --lotus-dark: #A88B6C;
+      --lotus-muted: #E8DDD2;
+      --charcoal: #5C5552;
+      --charcoal-light: #8A8582;
+      --sand: #E8E2DB;
+      --cream: #F5F3F0;
+      --warmwhite: #FDFCFB;
+      --sport: #9CB8A8;
+      --sport-bg: #EBF2EE;
+      --ernaehrung: #C9A87C;
+      --ernaehrung-bg: #F8F0E3;
+      --karriere: #A8B4C9;
+      --karriere-bg: #EEF1F6;
+      --familie: #D4A5A5;
+      --familie-bg: #F9EDED;
+      --finanzen: #A8B89D;
+      --finanzen-bg: #EFF3EC;
+      --selfcare: #C4A8C9;
+      --selfcare-bg: #F5EDF6;
+      --success: #7CB87C;
+      --warning: #E8C87C;
+      --danger: #D97B7B;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'Quicksand', sans-serif;
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --shadow-soft: 0 4px 20px rgba(92,85,82,0.08);
+      --shadow-md: 0 8px 30px rgba(92,85,82,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--charcoal); min-height: 100vh; overflow-x: hidden; }
+
+    .bg-animation { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+    .bg-animation::before, .bg-animation::after { content: ''; position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35; animation: float 20s ease-in-out infinite; }
+    .bg-animation::before { width: 500px; height: 500px; background: var(--lotus-muted); top: -150px; left: -150px; }
+    .bg-animation::after { width: 400px; height: 400px; background: var(--sand); bottom: -100px; right: -100px; animation-delay: -10s; }
+    @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, 30px) scale(1.1); } }
+
+    .app { max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--warmwhite); position: relative; box-shadow: var(--shadow-md); }
+
+    /* SCREENS */
+    .screen { display: none; min-height: 100vh; padding-bottom: 90px; }
+    .screen.active { display: block; }
+
+    /* ONBOARDING */
+    .onboarding { min-height: 100vh; display: flex; flex-direction: column; padding: 40px 24px; background: linear-gradient(180deg, var(--warmwhite) 0%, var(--cream) 100%); }
+    .onboarding.hidden { display: none; }
+    .onboarding-header { text-align: center; margin-bottom: 32px; }
+    .onboarding-logo { width: 64px; height: 64px; margin-bottom: 12px; }
+    .onboarding-brand { font-family: var(--font-display); font-size: 28px; font-weight: 500; color: var(--charcoal); letter-spacing: 0.5px; }
+    .onboarding-progress { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
+    .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sand); transition: all 0.3s ease; }
+    .progress-dot.active { background: var(--lotus); transform: scale(1.2); }
+    .progress-dot.completed { background: var(--lotus-light); }
+    .onboarding-content { flex: 1; display: flex; flex-direction: column; }
+    .onboarding-step { display: none; flex-direction: column; animation: fadeIn 0.4s ease; }
+    .onboarding-step.active { display: flex; flex: 1; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .step-icon { width: 72px; height: 72px; margin: 0 auto 20px; background: var(--lotus-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .step-icon .material-symbols-outlined { font-size: 36px; color: var(--lotus-dark); }
+    .step-icon.sport { background: var(--sport-bg); } .step-icon.sport .material-symbols-outlined { color: var(--sport); }
+    .step-icon.ernaehrung { background: var(--ernaehrung-bg); } .step-icon.ernaehrung .material-symbols-outlined { color: var(--ernaehrung); }
+    .step-icon.karriere { background: var(--karriere-bg); } .step-icon.karriere .material-symbols-outlined { color: var(--karriere); }
+    .step-icon.familie { background: var(--familie-bg); } .step-icon.familie .material-symbols-outlined { color: var(--familie); }
+    .step-icon.finanzen { background: var(--finanzen-bg); } .step-icon.finanzen .material-symbols-outlined { color: var(--finanzen); }
+    .step-icon.selfcare { background: var(--selfcare-bg); } .step-icon.selfcare .material-symbols-outlined { color: var(--selfcare); }
+    .step-title { font-family: var(--font-display); font-size: 26px; font-weight: 500; text-align: center; margin-bottom: 8px; color: var(--charcoal); }
+    .step-subtitle { text-align: center; color: var(--charcoal-light); font-size: 15px; line-height: 1.5; margin-bottom: 32px; }
+    .step-content { flex: 1; }
+
+    /* FORMS */
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--sand); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 16px; background: var(--warmwhite); color: var(--charcoal); transition: all 0.2s ease; }
+    .form-input:focus { outline: none; border-color: var(--lotus); box-shadow: 0 0 0 3px rgba(201, 168, 140, 0.15); }
+    .pillar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pillar-card { padding: 16px; border: 2px solid var(--sand); border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: all 0.2s ease; background: var(--warmwhite); }
+    .pillar-card:hover { border-color: var(--lotus-light); }
+    .pillar-card.selected { border-color: var(--lotus); background: var(--lotus-muted); }
+    .pillar-card .material-symbols-outlined { font-size: 28px; margin-bottom: 8px; display: block; }
+    .pillar-card.sport .material-symbols-outlined { color: var(--sport); }
+    .pillar-card.ernaehrung .material-symbols-outlined { color: var(--ernaehrung); }
+    .pillar-card.karriere .material-symbols-outlined { color: var(--karriere); }
+    .pillar-card.familie .material-symbols-outlined { color: var(--familie); }
+    .pillar-card.finanzen .material-symbols-outlined { color: var(--finanzen); }
+    .pillar-card.selfcare .material-symbols-outlined { color: var(--selfcare); }
+    .pillar-card span:last-child { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+    .slider-container { margin-bottom: 24px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .slider-value { font-size: 18px; font-weight: 700; color: var(--lotus-dark); }
+    .slider { width: 100%; height: 6px; border-radius: 3px; background: var(--sand); outline: none; -webkit-appearance: none; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--lotus); cursor: pointer; box-shadow: 0 2px 8px rgba(201, 168, 140, 0.4); }
+    .option-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .option-btn { padding: 12px 20px; border: 2px solid var(--sand); border-radius: 50px; background: var(--warmwhite); font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--charcoal); cursor: pointer; transition: all 0.2s ease; }
+    .option-btn:hover { border-color: var(--lotus-light); }
+    .option-btn.selected { border-color: var(--lotus); background: var(--lotus); color: white; }
+    .children-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .child-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--familie-bg); border-radius: var(--radius-sm); }
+    .child-card input { flex: 1; padding: 10px 12px; border: 1.5px solid transparent; border-radius: 8px; font-family: var(--font-body); font-size: 14px; background: var(--warmwhite); }
+    .child-card input:focus { outline: none; border-color: var(--familie); }
+    .child-card input[type="number"] { width: 70px; flex: none; }
+    .remove-child { width: 32px; height: 32px; border: none; border-radius: 50%; background: var(--familie); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--cream); border-radius: var(--radius-sm); margin-bottom: 16px; }
+    .toggle-label { font-weight: 500; }
+    .toggle-sublabel { font-size: 12px; color: var(--charcoal-light); margin-top: 2px; }
+    .toggle { width: 52px; height: 28px; border-radius: 14px; background: var(--sand); position: relative; cursor: pointer; transition: background 0.2s ease; }
+    .toggle.active { background: var(--lotus); }
+    .toggle::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .toggle.active::after { transform: translateX(24px); }
+    .onboarding-nav { display: flex; gap: 12px; margin-top: auto; padding-top: 24px; }
+    .btn { flex: 1; padding: 16px 24px; border: none; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-secondary { background: var(--sand); color: var(--charcoal); }
+    .btn-secondary:hover { background: var(--lotus-muted); }
+    .btn-primary { background: var(--lotus); color: white; }
+    .btn-primary:hover { background: var(--lotus-dark); }
+    .btn-sm { padding: 10px 16px; font-size: 14px; flex: none; }
+    .btn .material-symbols-outlined { font-size: 20px; }
+    .info-message { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--lotus-muted); border-radius: var(--radius-sm); margin-top: 16px; font-size: 13px; color: var(--charcoal); }
+    .info-message .material-symbols-outlined { font-size: 20px; color: var(--lotus-dark); flex-shrink: 0; }
+
+    /* HEADER */
+    .app-header { padding: 20px 20px 24px; background: linear-gradient(180deg, var(--warmwhite) 0%, transparent 100%); }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header-logo { display: flex; align-items: center; gap: 10px; }
+    .header-logo svg { width: 36px; height: 36px; }
+    .header-logo span { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--charcoal); }
+    .header-actions { display: flex; gap: 8px; }
+    .header-btn { width: 40px; height: 40px; border: none; border-radius: 50%; background: var(--cream); color: var(--charcoal); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; position: relative; }
+    .header-btn:hover { background: var(--lotus-muted); }
+    .header-btn .material-symbols-outlined { font-size: 22px; }
+    .notification-badge { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; }
+    .greeting { margin-bottom: 4px; }
+    .greeting-text { font-family: var(--font-display); font-size: 28px; font-weight: 500; color: var(--charcoal); }
+    .greeting-date { font-size: 14px; color: var(--charcoal-light); }
+
+    /* QUOTE CARD */
+    .quote-card { margin: 0 20px 24px; padding: 20px; background: linear-gradient(135deg, var(--lotus-muted) 0%, var(--sand) 100%); border-radius: var(--radius-md); position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .quote-card:active { transform: scale(0.98); }
+    .quote-card::before { content: '"'; position: absolute; top: -10px; left: 10px; font-family: var(--font-display); font-size: 80px; color: var(--lotus-light); opacity: 0.5; line-height: 1; }
+    .quote-text { font-family: var(--font-display); font-size: 18px; font-style: italic; color: var(--charcoal); position: relative; z-index: 1; }
+
+    /* SECTIONS */
+    .section { padding: 0 20px; margin-bottom: 24px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--charcoal-light); }
+    .section-link { font-size: 13px; font-weight: 600; color: var(--lotus); cursor: pointer; }
+
+    /* PILLAR CARDS */
+    .pillar-cards { display: flex; flex-direction: column; gap: 12px; }
+    .dashboard-pillar { display: flex; align-items: center; padding: 16px; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease; }
+    .dashboard-pillar:hover { transform: translateX(4px); }
+    .dashboard-pillar:active { transform: scale(0.98); }
+    .dashboard-pillar.sport { background: var(--sport-bg); }
+    .dashboard-pillar.ernaehrung { background: var(--ernaehrung-bg); }
+    .dashboard-pillar.karriere { background: var(--karriere-bg); }
+    .dashboard-pillar.familie { background: var(--familie-bg); }
+    .dashboard-pillar.finanzen { background: var(--finanzen-bg); }
+    .dashboard-pillar.selfcare { background: var(--selfcare-bg); }
+    .pillar-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0; }
+    .sport .pillar-icon { background: var(--sport); }
+    .ernaehrung .pillar-icon { background: var(--ernaehrung); }
+    .karriere .pillar-icon { background: var(--karriere); }
+    .familie .pillar-icon { background: var(--familie); }
+    .finanzen .pillar-icon { background: var(--finanzen); }
+    .selfcare .pillar-icon { background: var(--selfcare); }
+    .pillar-icon .material-symbols-outlined { font-size: 24px; color: white; }
+    .pillar-info { flex: 1; min-width: 0; }
+    .pillar-name { font-weight: 600; font-size: 15px; color: var(--charcoal); margin-bottom: 2px; }
+    .pillar-status { font-size: 13px; color: var(--charcoal-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pillar-progress { width: 48px; height: 48px; position: relative; flex-shrink: 0; }
+    .pillar-progress svg { transform: rotate(-90deg); }
+    .pillar-progress circle { fill: none; stroke-width: 4; }
+    .pillar-progress .bg { stroke: rgba(255,255,255,0.5); }
+    .pillar-progress .progress { stroke: currentColor; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+    .sport .pillar-progress { color: var(--sport); }
+    .ernaehrung .pillar-progress { color: var(--ernaehrung); }
+    .karriere .pillar-progress { color: var(--karriere); }
+    .familie .pillar-progress { color: var(--familie); }
+    .finanzen .pillar-progress { color: var(--finanzen); }
+    .selfcare .pillar-progress { color: var(--selfcare); }
+    .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .add-area-card { display: flex; align-items: center; padding: 16px; border: 2px dashed var(--sand); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease; }
+    .add-area-card:hover { border-color: var(--lotus); background: var(--lotus-muted); }
+    .add-area-card .pillar-icon { background: var(--sand); }
+    .add-area-card .material-symbols-outlined { color: var(--charcoal-light); }
+    .add-area-card .pillar-name { color: var(--charcoal-light); }
+
+    /* FOCUS CARDS */
+    .focus-cards { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin: 0 -20px; padding-left: 20px; padding-right: 20px; scroll-snap-type: x mandatory; }
+    .focus-cards::-webkit-scrollbar { display: none; }
+    .focus-card { min-width: 160px; padding: 16px; background: var(--warmwhite); border: 1.5px solid var(--sand); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; scroll-snap-align: start; }
+    .focus-card:hover { border-color: var(--lotus-light); }
+    .focus-card:active { transform: scale(0.97); }
+    .focus-card .material-symbols-outlined { font-size: 24px; margin-bottom: 10px; }
+    .focus-card.sport .material-symbols-outlined { color: var(--sport); }
+    .focus-card.ernaehrung .material-symbols-outlined { color: var(--ernaehrung); }
+    .focus-card.karriere .material-symbols-outlined { color: var(--karriere); }
+    .focus-card.familie .material-symbols-outlined { color: var(--familie); }
+    .focus-card.finanzen .material-symbols-outlined { color: var(--finanzen); }
+    .focus-card.selfcare .material-symbols-outlined { color: var(--selfcare); }
+    .focus-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .focus-desc { font-size: 12px; color: var(--charcoal-light); }
+    .focus-time { font-size: 11px; color: var(--lotus); font-weight: 600; margin-top: 8px; }
+
+    /* TASK LIST */
+    .task-list { display: flex; flex-direction: column; gap: 8px; }
+    .task-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--warmwhite); border: 1px solid var(--sand); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
+    .task-item:hover { border-color: var(--lotus-light); }
+    .task-item.completed { opacity: 0.6; }
+    .task-item.completed .task-text { text-decoration: line-through; }
+    .task-checkbox { width: 22px; height: 22px; border: 2px solid var(--sand); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    .task-item.completed .task-checkbox { background: var(--success); border-color: var(--success); }
+    .task-checkbox .material-symbols-outlined { font-size: 16px; color: white; opacity: 0; }
+    .task-item.completed .task-checkbox .material-symbols-outlined { opacity: 1; }
+    .task-content { flex: 1; min-width: 0; }
+    .task-text { font-size: 14px; font-weight: 500; }
+    .task-meta { font-size: 12px; color: var(--charcoal-light); margin-top: 2px; }
+    .task-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .task-priority.high { background: var(--danger); }
+    .task-priority.medium { background: var(--warning); }
+    .task-priority.low { background: var(--success); }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--warmwhite); border-top: 1px solid var(--sand); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; color: var(--charcoal-light); transition: color 0.2s ease; }
+    .nav-item:hover, .nav-item.active { color: var(--lotus); }
+    .nav-item .material-symbols-outlined { font-size: 26px; }
+    .nav-item span:last-child { font-size: 11px; font-weight: 500; }
+
+    /* DETAIL HEADER */
+    .detail-header { display: flex; align-items: center; gap: 12px; padding: 20px; background: var(--warmwhite); border-bottom: 1px solid var(--sand); position: sticky; top: 0; z-index: 10; }
+    .back-btn { width: 40px; height: 40px; border: none; border-radius: 50%; background: var(--cream); color: var(--charcoal); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .detail-header h1 { font-family: var(--font-display); font-size: 24px; font-weight: 500; flex: 1; }
+    .detail-header .header-btn { flex-shrink: 0; }
+
+    /* STATS ROW */
+    .stats-row { display: flex; gap: 12px; padding: 20px; overflow-x: auto; }
+    .stat-card { flex: 1; min-width: 100px; padding: 16px; background: var(--cream); border-radius: var(--radius-sm); text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--charcoal); }
+    .stat-label { font-size: 11px; color: var(--charcoal-light); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+    /* CALENDAR */
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
+    .calendar-month { font-family: var(--font-display); font-size: 20px; font-weight: 500; }
+    .calendar-nav { display: flex; gap: 8px; }
+    .calendar-nav button { width: 36px; height: 36px; border: none; border-radius: 50%; background: var(--cream); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 0 20px 20px; }
+    .calendar-day-name { font-size: 11px; font-weight: 600; color: var(--charcoal-light); text-align: center; padding: 8px 0; }
+    .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; position: relative; }
+    .calendar-day:hover { background: var(--cream); }
+    .calendar-day.today { background: var(--lotus); color: white; }
+    .calendar-day.selected { background: var(--lotus-muted); }
+    .calendar-day.other-month { color: var(--sand); }
+    .calendar-day .event-dot { position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--lotus); }
+    .calendar-day.today .event-dot { background: white; }
+    .calendar-events { padding: 0 20px; }
+    .event-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--warmwhite); border-radius: var(--radius-sm); margin-bottom: 8px; border-left: 4px solid var(--lotus); cursor: pointer; transition: transform 0.2s; }
+    .event-item:active { transform: scale(0.98); }
+    .event-item.sport { border-color: var(--sport); }
+    .event-item.ernaehrung { border-color: var(--ernaehrung); }
+    .event-item.karriere { border-color: var(--karriere); }
+    .event-item.familie { border-color: var(--familie); }
+    .event-item.finanzen { border-color: var(--finanzen); }
+    .event-item.selfcare { border-color: var(--selfcare); }
+    .event-time { font-size: 13px; font-weight: 600; color: var(--charcoal); min-width: 50px; }
+    .event-info { flex: 1; }
+    .event-title { font-size: 14px; font-weight: 500; }
+    .event-location { font-size: 12px; color: var(--charcoal-light); }
+
+    /* RECIPE CARD */
+    .recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; }
+    .recipe-card { background: var(--warmwhite); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .recipe-card:active { transform: scale(0.97); }
+    .recipe-image { height: 100px; background: linear-gradient(135deg, var(--ernaehrung-bg), var(--sand)); display: flex; align-items: center; justify-content: center; }
+    .recipe-image .material-symbols-outlined { font-size: 40px; color: var(--ernaehrung); }
+    .recipe-content { padding: 12px; }
+    .recipe-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .recipe-meta { font-size: 12px; color: var(--charcoal-light); display: flex; gap: 8px; }
+
+    /* TRANSACTION LIST */
+    .transaction-list { padding: 0 20px; }
+    .transaction-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--sand); }
+    .transaction-item:last-child { border-bottom: none; }
+    .transaction-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--cream); display: flex; align-items: center; justify-content: center; }
+    .transaction-icon .material-symbols-outlined { font-size: 22px; color: var(--charcoal-light); }
+    .transaction-info { flex: 1; }
+    .transaction-name { font-size: 14px; font-weight: 500; }
+    .transaction-category { font-size: 12px; color: var(--charcoal-light); }
+    .transaction-amount { font-size: 15px; font-weight: 600; }
+    .transaction-amount.expense { color: var(--danger); }
+    .transaction-amount.income { color: var(--success); }
+
+    /* NOTIFICATIONS */
+    .notification-list { padding: 20px; }
+    .notification-item { display: flex; gap: 12px; padding: 16px; background: var(--warmwhite); border-radius: var(--radius-sm); margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+    .notification-item:hover { background: var(--cream); }
+    .notification-item.unread { border-left: 3px solid var(--lotus); }
+    .notification-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .notification-icon.sport { background: var(--sport-bg); color: var(--sport); }
+    .notification-icon.ernaehrung { background: var(--ernaehrung-bg); color: var(--ernaehrung); }
+    .notification-icon.karriere { background: var(--karriere-bg); color: var(--karriere); }
+    .notification-icon.familie { background: var(--familie-bg); color: var(--familie); }
+    .notification-icon.finanzen { background: var(--finanzen-bg); color: var(--finanzen); }
+    .notification-icon.selfcare { background: var(--selfcare-bg); color: var(--selfcare); }
+    .notification-content { flex: 1; }
+    .notification-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .notification-text { font-size: 13px; color: var(--charcoal-light); line-height: 1.4; }
+    .notification-time { font-size: 11px; color: var(--charcoal-light); margin-top: 6px; }
+
+    /* SETTINGS */
+    .settings-content { padding: 20px; }
+    .settings-section { margin-bottom: 24px; }
+    .settings-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--charcoal-light); margin-bottom: 12px; padding-left: 4px; }
+    .settings-card { background: var(--warmwhite); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-soft); }
+    .settings-item { display: flex; align-items: center; padding: 16px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--sand); }
+    .settings-item:last-child { border-bottom: none; }
+    .settings-item:hover { background: var(--cream); }
+    .settings-item .material-symbols-outlined { font-size: 24px; color: var(--charcoal-light); margin-right: 14px; }
+    .settings-item-content { flex: 1; }
+    .settings-item-title { font-weight: 500; font-size: 15px; margin-bottom: 2px; }
+    .settings-item-desc { font-size: 13px; color: var(--charcoal-light); }
+    .settings-item .chevron { color: var(--sand); }
+    .settings-item.sport .material-symbols-outlined:first-child { color: var(--sport); }
+    .settings-item.ernaehrung .material-symbols-outlined:first-child { color: var(--ernaehrung); }
+    .settings-item.karriere .material-symbols-outlined:first-child { color: var(--karriere); }
+    .settings-item.familie .material-symbols-outlined:first-child { color: var(--familie); }
+    .settings-item.finanzen .material-symbols-outlined:first-child { color: var(--finanzen); }
+    .settings-item.selfcare .material-symbols-outlined:first-child { color: var(--selfcare); }
+    .settings-item.inactive { opacity: 0.6; }
+    .settings-item.danger { color: var(--danger); }
+    .settings-item.danger .material-symbols-outlined { color: var(--danger); }
+    .profile-card { display: flex; align-items: center; padding: 20px; background: var(--warmwhite); border-radius: var(--radius-md); margin-bottom: 24px; box-shadow: var(--shadow-soft); }
+    .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--lotus-light), var(--lotus)); display: flex; align-items: center; justify-content: center; margin-right: 16px; }
+    .profile-avatar .material-symbols-outlined { font-size: 32px; color: white; }
+    .profile-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .profile-info p { font-size: 14px; color: var(--charcoal-light); }
+    .settings-toggle { width: 48px; height: 26px; border-radius: 13px; background: var(--sand); position: relative; cursor: pointer; transition: background 0.2s ease; flex-shrink: 0; }
+    .settings-toggle.active { background: var(--lotus); }
+    .settings-toggle::after { content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .settings-toggle.active::after { transform: translateX(22px); }
+    .add-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--lotus); color: white; border-radius: 50%; font-size: 18px; }
+    .remove-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--danger); color: white; border-radius: 50%; font-size: 18px; }
+
+    /* MODALS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal { width: 100%; max-width: 380px; background: var(--warmwhite); border-radius: var(--radius-lg); padding: 24px; animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; }
+    .modal-close { width: 36px; height: 36px; border: none; border-radius: 50%; background: var(--cream); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-footer { display: flex; gap: 12px; margin-top: 24px; }
+    .add-pillar-item { display: flex; align-items: center; padding: 14px; border: 2px solid var(--sand); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s ease; margin-bottom: 8px; }
+    .add-pillar-item:hover { border-color: var(--lotus-light); }
+    .add-pillar-item.disabled { opacity: 0.5; cursor: not-allowed; background: var(--cream); }
+    .add-pillar-item .material-symbols-outlined { font-size: 24px; margin-right: 12px; }
+    .add-pillar-item.sport .material-symbols-outlined { color: var(--sport); }
+    .add-pillar-item.ernaehrung .material-symbols-outlined { color: var(--ernaehrung); }
+    .add-pillar-item.karriere .material-symbols-outlined { color: var(--karriere); }
+    .add-pillar-item.familie .material-symbols-outlined { color: var(--familie); }
+    .add-pillar-item.finanzen .material-symbols-outlined { color: var(--finanzen); }
+    .add-pillar-item.selfcare .material-symbols-outlined { color: var(--selfcare); }
+    .add-pillar-item span:last-child { flex: 1; font-weight: 500; }
+    .add-pillar-item .check { color: var(--lotus); }
+
+    /* RECIPE DETAIL */
+    .recipe-detail-image { height: 200px; background: linear-gradient(135deg, var(--ernaehrung-bg), var(--sand)); display: flex; align-items: center; justify-content: center; }
+    .recipe-detail-image .material-symbols-outlined { font-size: 80px; color: var(--ernaehrung); }
+    .recipe-detail-content { padding: 20px; }
+    .recipe-detail-title { font-family: var(--font-display); font-size: 28px; font-weight: 500; margin-bottom: 8px; }
+    .recipe-detail-meta { display: flex; gap: 16px; margin-bottom: 20px; }
+    .recipe-detail-meta span { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--charcoal-light); }
+    .recipe-detail-meta .material-symbols-outlined { font-size: 18px; }
+    .nutrition-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
+    .nutrition-item { text-align: center; padding: 12px 8px; background: var(--cream); border-radius: var(--radius-sm); }
+    .nutrition-value { font-size: 18px; font-weight: 700; color: var(--ernaehrung); }
+    .nutrition-label { font-size: 10px; color: var(--charcoal-light); text-transform: uppercase; }
+    .ingredient-list { margin-bottom: 24px; }
+    .ingredient-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--sand); }
+    .ingredient-item:last-child { border-bottom: none; }
+    .ingredient-amount { font-weight: 600; min-width: 60px; }
+
+    /* WORKOUT CARD */
+    .workout-card { background: var(--warmwhite); border-radius: var(--radius-md); padding: 16px; margin: 0 20px 12px; border: 1px solid var(--sand); cursor: pointer; transition: all 0.2s; }
+    .workout-card:active { transform: scale(0.98); }
+    .workout-card.completed { opacity: 0.6; border-color: var(--success); }
+    .workout-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+    .workout-title { font-size: 16px; font-weight: 600; }
+    .workout-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .workout-badge.planned { background: var(--sport-bg); color: var(--sport); }
+    .workout-badge.done { background: var(--success); color: white; }
+    .workout-stats { display: flex; gap: 16px; }
+    .workout-stat { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--charcoal-light); }
+    .workout-stat .material-symbols-outlined { font-size: 18px; }
+
+    /* MEAL PLANNER */
+    .meal-planner { padding: 0 20px; }
+    .meal-day-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 20px 16px; }
+    .meal-day-tabs::-webkit-scrollbar { display: none; }
+    .meal-day-tab { min-width: 52px; padding: 10px 8px; border-radius: var(--radius-sm); background: var(--cream); text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .meal-day-tab.active { background: var(--ernaehrung); color: white; border-color: var(--ernaehrung); }
+    .meal-day-tab .day-name { font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .meal-day-tab .day-num { font-size: 16px; font-weight: 700; margin-top: 2px; }
+    .meal-slot { background: var(--warmwhite); border: 1.5px solid var(--sand); border-radius: var(--radius-md); padding: 14px; margin: 0 20px 10px; cursor: pointer; transition: all 0.2s; }
+    .meal-slot:hover { border-color: var(--ernaehrung); }
+    .meal-slot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .meal-slot-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--charcoal-light); }
+    .meal-slot-kcal { font-size: 12px; color: var(--ernaehrung); font-weight: 600; }
+    .meal-slot-content { display: flex; align-items: center; gap: 10px; }
+    .meal-slot-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--ernaehrung-bg); display: flex; align-items: center; justify-content: center; }
+    .meal-slot-icon .material-symbols-outlined { font-size: 20px; color: var(--ernaehrung); }
+    .meal-slot-info { flex: 1; }
+    .meal-slot-title { font-size: 14px; font-weight: 600; }
+    .meal-slot-meta { font-size: 12px; color: var(--charcoal-light); }
+    .meal-slot.empty { border-style: dashed; opacity: 0.7; }
+    .meal-slot.empty .meal-slot-title { color: var(--charcoal-light); }
+    .meal-summary { display: flex; gap: 12px; padding: 16px 20px; }
+    .meal-summary-item { flex: 1; text-align: center; padding: 12px 8px; background: var(--ernaehrung-bg); border-radius: var(--radius-sm); }
+    .meal-summary-value { font-size: 18px; font-weight: 700; color: var(--ernaehrung); }
+    .meal-summary-label { font-size: 10px; color: var(--charcoal-light); text-transform: uppercase; margin-top: 2px; }
+
+    /* SHOPPING LIST */
+    .shopping-section { padding: 0 20px; margin-bottom: 20px; }
+    .shopping-category { margin-bottom: 16px; }
+    .shopping-category-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ernaehrung); margin-bottom: 8px; padding-left: 4px; }
+    .shopping-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--warmwhite); border: 1px solid var(--sand); border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; transition: all 0.2s; }
+    .shopping-item:hover { border-color: var(--ernaehrung); }
+    .shopping-item.checked { opacity: 0.5; }
+    .shopping-item.checked .shopping-text { text-decoration: line-through; }
+    .shopping-check { width: 22px; height: 22px; border: 2px solid var(--sand); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    .shopping-item.checked .shopping-check { background: var(--ernaehrung); border-color: var(--ernaehrung); }
+    .shopping-check .material-symbols-outlined { font-size: 16px; color: white; opacity: 0; }
+    .shopping-item.checked .shopping-check .material-symbols-outlined { opacity: 1; }
+    .shopping-text { flex: 1; font-size: 14px; }
+    .shopping-amount { font-size: 13px; color: var(--charcoal-light); font-weight: 500; }
+
+    /* WEIGHT TRACKING */
+    .weight-input-card { background: var(--warmwhite); border-radius: var(--radius-md); padding: 20px; margin: 0 20px 20px; box-shadow: var(--shadow-soft); }
+    .weight-input-row { display: flex; align-items: center; gap: 12px; }
+    .weight-input { flex: 1; padding: 14px 16px; border: 2px solid var(--sand); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 24px; font-weight: 700; text-align: center; background: var(--cream); color: var(--charcoal); }
+    .weight-input:focus { outline: none; border-color: var(--sport); }
+    .weight-unit { font-size: 16px; font-weight: 600; color: var(--charcoal-light); }
+    .weight-chart { background: var(--warmwhite); border-radius: var(--radius-md); padding: 20px; margin: 0 20px 20px; }
+    .weight-chart-area { height: 160px; position: relative; border-bottom: 1px solid var(--sand); margin-bottom: 8px; }
+    .weight-line { position: absolute; bottom: 0; left: 0; right: 0; height: 100%; }
+    .weight-point { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--sport); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transform: translate(-50%, 50%); }
+    .weight-chart-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--charcoal-light); }
+    .weight-stats { display: flex; gap: 12px; padding: 0 20px; margin-bottom: 20px; }
+    .weight-stat { flex: 1; text-align: center; padding: 14px; background: var(--sport-bg); border-radius: var(--radius-sm); }
+    .weight-stat-value { font-size: 20px; font-weight: 700; color: var(--sport); }
+    .weight-stat-label { font-size: 11px; color: var(--charcoal-light); text-transform: uppercase; margin-top: 2px; }
+
+    /* HABIT TRACKER */
+    .habit-list { padding: 0 20px; }
+    .habit-card { background: var(--warmwhite); border: 1.5px solid var(--sand); border-radius: var(--radius-md); padding: 16px; margin-bottom: 10px; transition: all 0.2s; }
+    .habit-card.completed-today { border-color: var(--success); background: linear-gradient(135deg, var(--warmwhite), rgba(124, 184, 124, 0.05)); }
+    .habit-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .habit-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .habit-icon .material-symbols-outlined { font-size: 22px; color: white; }
+    .habit-info { flex: 1; }
+    .habit-name { font-size: 15px; font-weight: 600; }
+    .habit-streak { font-size: 12px; color: var(--charcoal-light); display: flex; align-items: center; gap: 4px; }
+    .habit-streak .material-symbols-outlined { font-size: 14px; color: var(--warning); }
+    .habit-check-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--sand); background: var(--warmwhite); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .habit-check-btn.checked { background: var(--success); border-color: var(--success); }
+    .habit-check-btn .material-symbols-outlined { font-size: 20px; color: var(--sand); }
+    .habit-check-btn.checked .material-symbols-outlined { color: white; }
+    .habit-week { display: flex; gap: 4px; }
+    .habit-day { width: 100%; height: 6px; border-radius: 3px; background: var(--sand); }
+    .habit-day.done { background: var(--success); }
+    .habit-day.today { outline: 2px solid var(--charcoal-light); outline-offset: 1px; }
+
+    /* PREMIUM */
+    .premium-banner { margin: 0 20px 20px; padding: 20px; background: linear-gradient(135deg, var(--lotus), var(--lotus-dark)); border-radius: var(--radius-md); color: white; position: relative; overflow: hidden; cursor: pointer; }
+    .premium-banner::after { content: ''; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+    .premium-banner-title { font-family: var(--font-display); font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+    .premium-banner-text { font-size: 13px; opacity: 0.9; margin-bottom: 12px; }
+    .premium-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(255,255,255,0.2); border-radius: 50px; font-size: 13px; font-weight: 600; }
+    .premium-modal-features { list-style: none; padding: 0; }
+    .premium-modal-features li { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--sand); font-size: 14px; }
+    .premium-modal-features li:last-child { border-bottom: none; }
+    .premium-modal-features .material-symbols-outlined { color: var(--lotus); font-size: 20px; }
+    .premium-price-cards { display: flex; gap: 12px; margin: 20px 0; }
+    .premium-price-card { flex: 1; padding: 16px; border: 2px solid var(--sand); border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+    .premium-price-card:hover { border-color: var(--lotus-light); }
+    .premium-price-card.selected { border-color: var(--lotus); background: var(--lotus-muted); }
+    .premium-price-card.popular::before { content: 'Beliebt'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--lotus); color: white; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .premium-price-amount { font-size: 24px; font-weight: 700; color: var(--charcoal); }
+    .premium-price-period { font-size: 12px; color: var(--charcoal-light); }
+    .premium-price-save { font-size: 11px; color: var(--success); font-weight: 600; margin-top: 4px; }
+
+    /* FAB */
+    .fab { position: fixed; bottom: 100px; right: calc(50% - 195px); width: 56px; height: 56px; border-radius: 50%; background: var(--lotus); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(201, 168, 140, 0.4); transition: all 0.2s; z-index: 50; }
+    .fab:hover { transform: scale(1.05); }
+    .fab:active { transform: scale(0.95); }
+    .fab .material-symbols-outlined { font-size: 28px; }
+
+    /* CONFETTI */
+    .confetti { position: fixed; width: 10px; height: 10px; pointer-events: none; z-index: 400; animation: confetti-fall 3s ease-out forwards; }
+    @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 40px 20px; }
+    .empty-state .material-symbols-outlined { font-size: 64px; color: var(--sand); margin-bottom: 16px; }
+    .empty-state h3 { font-family: var(--font-display); font-size: 20px; margin-bottom: 8px; }
+    .empty-state p { color: var(--charcoal-light); font-size: 14px; margin-bottom: 20px; }
+    .empty-state .btn { display: inline-flex; flex: none; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 8px; padding: 0 20px 16px; overflow-x: auto; }
+    .tab { padding: 10px 20px; border-radius: 50px; background: var(--cream); font-size: 13px; font-weight: 600; color: var(--charcoal-light); border: none; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .tab.active { background: var(--lotus); color: white; }
+
+    /* CHART PLACEHOLDER */
+    .chart-container { padding: 20px; background: var(--warmwhite); margin: 0 20px 20px; border-radius: var(--radius-md); }
+    .chart-placeholder { height: 150px; display: flex; align-items: flex-end; gap: 8px; padding-top: 20px; }
+    .chart-bar { flex: 1; background: var(--lotus-muted); border-radius: 4px 4px 0 0; transition: height 0.5s ease; }
+    .chart-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--charcoal-light); }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"></div>
+  <div class="app" id="app">
+    <!-- All screens will be rendered here -->
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════════
+    const MOCK_DATA = {
+      quotes: [
+        "Fortschritt, nicht Perfektion.",
+        "Sei sanft zu dir selbst.",
+        "Kleine Schritte, große Wirkung.",
+        "Heute ist ein guter Tag für einen guten Tag.",
+        "Du bist genug, genau so wie du bist.",
+        "Jeder Tag ist eine neue Chance."
+      ],
+      
+      workouts: [
+        { id: 1, title: 'Morning Yoga', duration: 30, calories: 120, time: '07:00', completed: true, type: 'yoga' },
+        { id: 2, title: 'HIIT Training', duration: 25, calories: 280, time: '18:00', completed: false, type: 'hiit' },
+        { id: 3, title: 'Abend-Lauf', duration: 45, calories: 400, time: '19:30', completed: false, type: 'running' }
+      ],
+      
+      recipes: [
+        { id: 1, title: 'Avocado Toast', time: 10, difficulty: 'Einfach', calories: 320, protein: 12, carbs: 28, fat: 18, ingredients: ['2 Scheiben Vollkornbrot', '1 reife Avocado', '2 Eier', 'Salz & Pfeffer', 'Chiliflocken'] },
+        { id: 2, title: 'Buddha Bowl', time: 25, difficulty: 'Mittel', calories: 480, protein: 18, carbs: 52, fat: 22, ingredients: ['150g Quinoa', '100g Kichererbsen', '1 Süßkartoffel', 'Spinat', 'Tahini-Dressing'] },
+        { id: 3, title: 'Grüner Smoothie', time: 5, difficulty: 'Einfach', calories: 180, protein: 6, carbs: 32, fat: 4, ingredients: ['1 Banane', '1 Handvoll Spinat', '200ml Mandelmilch', '1 EL Chiasamen'] },
+        { id: 4, title: 'Lachs mit Gemüse', time: 35, difficulty: 'Mittel', calories: 520, protein: 38, carbs: 24, fat: 28, ingredients: ['200g Lachsfilet', 'Brokkoli', 'Zucchini', 'Zitrone', 'Olivenöl'] },
+        { id: 5, title: 'Overnight Oats', time: 5, difficulty: 'Einfach', calories: 380, protein: 14, carbs: 58, fat: 10, ingredients: ['50g Haferflocken', '150ml Milch', 'Beeren', 'Honig', 'Nüsse'] },
+        { id: 6, title: 'Quinoa Salat', time: 20, difficulty: 'Einfach', calories: 420, protein: 16, carbs: 48, fat: 18, ingredients: ['150g Quinoa', 'Gurke', 'Tomaten', 'Feta', 'Minze'] }
+      ],
+      
+      tasks: [
+        { id: 1, text: 'Projektbericht fertigstellen', meta: 'Deadline: Heute', priority: 'high', completed: false, pillar: 'karriere' },
+        { id: 2, text: 'Meeting mit Team vorbereiten', meta: '14:00 Uhr', priority: 'medium', completed: true, pillar: 'karriere' },
+        { id: 3, text: 'E-Mails beantworten', meta: '5 ungelesen', priority: 'low', completed: false, pillar: 'karriere' },
+        { id: 4, text: 'Weiterbildung: React Kurs', meta: 'Kapitel 5', priority: 'medium', completed: false, pillar: 'karriere' }
+      ],
+      
+      familyEvents: [
+        { id: 1, title: 'Emma: Zahnarzt', time: '15:00', location: 'Dr. Müller, Hauptstr. 12', person: 'Emma' },
+        { id: 2, title: 'Elternabend Schule', time: '19:00', location: 'Grundschule Am Park', person: 'Beide' },
+        { id: 3, title: 'Schwimmkurs', time: '16:30', location: 'Hallenbad Nord', person: 'Max' },
+        { id: 4, title: 'Kindergeburtstag', time: '14:00', location: 'Bei Familie Schmidt', person: 'Emma' }
+      ],
+      
+      children: [
+        { name: 'Emma', age: 7, avatar: '👧' },
+        { name: 'Max', age: 4, avatar: '👦' }
+      ],
+      
+      transactions: [
+        { id: 1, name: 'REWE Einkauf', category: 'Lebensmittel', amount: -67.32, icon: 'shopping_cart', date: 'Heute' },
+        { id: 2, name: 'Gehalt', category: 'Einkommen', amount: 3850.00, icon: 'payments', date: 'Gestern' },
+        { id: 3, name: 'Netflix', category: 'Abonnement', amount: -12.99, icon: 'play_circle', date: '28. Jan' },
+        { id: 4, name: 'Tankstelle', category: 'Auto', amount: -58.40, icon: 'local_gas_station', date: '27. Jan' },
+        { id: 5, name: 'Amazon', category: 'Shopping', amount: -34.99, icon: 'shopping_bag', date: '26. Jan' },
+        { id: 6, name: 'Fitnessstudio', category: 'Sport', amount: -39.90, icon: 'fitness_center', date: '25. Jan' }
+      ],
+      
+      budget: {
+        total: 3500,
+        spent: 1890,
+        categories: [
+          { name: 'Lebensmittel', budget: 600, spent: 420 },
+          { name: 'Wohnen', budget: 1200, spent: 1200 },
+          { name: 'Transport', budget: 300, spent: 180 },
+          { name: 'Freizeit', budget: 400, spent: 90 }
+        ]
+      },
+      
+      notifications: [
+        { id: 1, title: 'Workout Erinnerung', text: 'Dein HIIT Training steht um 18:00 an. Bist du bereit?', time: 'vor 5 Min', pillar: 'sport', unread: true },
+        { id: 2, title: 'Mahlzeit tracken', text: 'Vergiss nicht, dein Mittagessen zu loggen!', time: 'vor 2 Std', pillar: 'ernaehrung', unread: true },
+        { id: 3, title: 'Meeting Reminder', text: 'Team-Meeting in 30 Minuten', time: 'vor 3 Std', pillar: 'karriere', unread: false },
+        { id: 4, title: 'Termin: Zahnarzt Emma', text: 'Morgen um 15:00 Uhr bei Dr. Müller', time: 'Gestern', pillar: 'familie', unread: false },
+        { id: 5, title: 'Budget-Warnung', text: 'Du hast 80% deines Lebensmittel-Budgets erreicht', time: 'vor 2 Tagen', pillar: 'finanzen', unread: false }
+      ],
+      
+      mealPlan: {
+        0: { fruehstueck: { recipeId: 5, title: 'Overnight Oats', kcal: 380 }, mittag: { recipeId: 2, title: 'Buddha Bowl', kcal: 480 }, abend: { recipeId: 4, title: 'Lachs mit Gemuese', kcal: 520 }, snack: { recipeId: 3, title: 'Gruener Smoothie', kcal: 180 } },
+        1: { fruehstueck: { recipeId: 1, title: 'Avocado Toast', kcal: 320 }, mittag: { recipeId: 6, title: 'Quinoa Salat', kcal: 420 }, abend: null, snack: null },
+        2: { fruehstueck: { recipeId: 5, title: 'Overnight Oats', kcal: 380 }, mittag: null, abend: { recipeId: 4, title: 'Lachs mit Gemuese', kcal: 520 }, snack: null },
+        3: { fruehstueck: null, mittag: { recipeId: 2, title: 'Buddha Bowl', kcal: 480 }, abend: null, snack: { recipeId: 3, title: 'Gruener Smoothie', kcal: 180 } },
+        4: { fruehstueck: { recipeId: 1, title: 'Avocado Toast', kcal: 320 }, mittag: { recipeId: 6, title: 'Quinoa Salat', kcal: 420 }, abend: { recipeId: 4, title: 'Lachs mit Gemuese', kcal: 520 }, snack: null },
+        5: { fruehstueck: null, mittag: null, abend: null, snack: null },
+        6: { fruehstueck: null, mittag: null, abend: null, snack: null }
+      },
+
+      shoppingList: [
+        { id: 1, text: 'Haferflocken', amount: '200g', category: 'Getreide', checked: false },
+        { id: 2, text: 'Mandelmilch', amount: '1L', category: 'Getraenke', checked: false },
+        { id: 3, text: 'Bananen', amount: '4 Stueck', category: 'Obst & Gemuese', checked: true },
+        { id: 4, text: 'Spinat', amount: '200g', category: 'Obst & Gemuese', checked: false },
+        { id: 5, text: 'Avocados', amount: '3 Stueck', category: 'Obst & Gemuese', checked: false },
+        { id: 6, text: 'Vollkornbrot', amount: '1 Packung', category: 'Getreide', checked: true },
+        { id: 7, text: 'Eier', amount: '10 Stueck', category: 'Proteine', checked: false },
+        { id: 8, text: 'Lachsfilet', amount: '400g', category: 'Proteine', checked: false },
+        { id: 9, text: 'Quinoa', amount: '300g', category: 'Getreide', checked: false },
+        { id: 10, text: 'Kichererbsen', amount: '2 Dosen', category: 'Proteine', checked: false },
+        { id: 11, text: 'Suesskartoffel', amount: '3 Stueck', category: 'Obst & Gemuese', checked: false },
+        { id: 12, text: 'Chiasamen', amount: '100g', category: 'Superfoods', checked: false },
+        { id: 13, text: 'Feta', amount: '200g', category: 'Milchprodukte', checked: false },
+        { id: 14, text: 'Honig', amount: '1 Glas', category: 'Sonstiges', checked: false }
+      ],
+
+      weightHistory: [
+        { date: '01.01', weight: 82.5 },
+        { date: '08.01', weight: 82.0 },
+        { date: '15.01', weight: 81.3 },
+        { date: '22.01', weight: 81.0 },
+        { date: '29.01', weight: 80.5 },
+        { date: '05.02', weight: 80.1 },
+        { date: '12.02', weight: 79.8 }
+      ],
+
+      habits: [
+        { id: 1, name: 'Meditation', icon: 'self_improvement', color: 'var(--lotus)', streak: 12, weekDays: [true, true, true, false, true, true, false], completedToday: true },
+        { id: 2, name: '8 Glaeser Wasser', icon: 'water_drop', color: 'var(--ernaehrung)', streak: 5, weekDays: [true, true, true, true, true, false, false], completedToday: false },
+        { id: 3, name: '10.000 Schritte', icon: 'directions_walk', color: 'var(--sport)', streak: 3, weekDays: [true, false, true, true, false, false, false], completedToday: false },
+        { id: 4, name: 'Journaling', icon: 'edit_note', color: 'var(--karriere)', streak: 8, weekDays: [true, true, true, true, true, true, false], completedToday: true },
+        { id: 5, name: 'Kein Social Media vor 9', icon: 'phone_android', color: 'var(--familie)', streak: 2, weekDays: [true, true, false, false, false, false, false], completedToday: false }
+      ],
+
+      selfcare: {
+        mood: null,
+        journalPrompts: [
+          'Wofuer bin ich heute dankbar?',
+          'Was hat mich heute zum Laecheln gebracht?',
+          'Welche kleine Sache kann ich heute fuer mich tun?',
+          'Was moechte ich loslassen?',
+          'Was gibt mir gerade Kraft?',
+          'Worauf freue ich mich diese Woche?'
+        ],
+        miniExercises: [
+          { title: 'Box Breathing', desc: '4 Sek einatmen, 4 halten, 4 ausatmen', duration: '3 Min', icon: 'air' },
+          { title: 'Body Scan', desc: 'Spuere kurz in deinen Koerper hinein', duration: '5 Min', icon: 'accessibility_new' },
+          { title: 'Dankbarkeit', desc: 'Nenne 3 Dinge fuer die du dankbar bist', duration: '2 Min', icon: 'favorite' },
+          { title: 'Achtsamer Tee', desc: 'Trinke bewusst eine Tasse Tee', duration: '10 Min', icon: 'coffee' },
+          { title: 'Stretching', desc: '5 sanfte Dehnuebungen am Schreibtisch', duration: '5 Min', icon: 'self_improvement' }
+        ],
+        cycleDay: 14,
+        cycleLength: 28,
+        symptoms: ['Energie hoch', 'Gute Stimmung']
+      },
+
+      calendarEvents: [
+        { date: 3, title: 'Team Meeting', time: '10:00', pillar: 'karriere' },
+        { date: 3, title: 'Yoga', time: '18:00', pillar: 'sport' },
+        { date: 5, title: 'Zahnarzt Emma', time: '15:00', pillar: 'familie' },
+        { date: 8, title: 'Projektabgabe', time: '17:00', pillar: 'karriere' },
+        { date: 10, title: 'Elternabend', time: '19:00', pillar: 'familie' },
+        { date: 12, title: 'Schwimmkurs Max', time: '16:30', pillar: 'familie' },
+        { date: 15, title: 'Gehalt', time: '', pillar: 'finanzen' },
+        { date: 18, title: 'HIIT Training', time: '07:00', pillar: 'sport' },
+        { date: 20, title: 'Kindergeburtstag', time: '14:00', pillar: 'familie' },
+        { date: 25, title: 'Versicherung fällig', time: '', pillar: 'finanzen' }
+      ]
+    };
+
+    const PILLARS = {
+      sport: { id: 'sport', name: 'Sport', icon: 'fitness_center', color: 'sport' },
+      ernaehrung: { id: 'ernaehrung', name: 'Ernährung', icon: 'restaurant', color: 'ernaehrung' },
+      selfcare: { id: 'selfcare', name: 'Selfcare', icon: 'spa', color: 'selfcare' },
+      karriere: { id: 'karriere', name: 'Karriere', icon: 'work', color: 'karriere' },
+      familie: { id: 'familie', name: 'Familie', icon: 'family_restroom', color: 'familie' },
+      finanzen: { id: 'finanzen', name: 'Finanzen', icon: 'account_balance_wallet', color: 'finanzen' }
+    };
+    const PILLAR_ORDER = ['sport', 'ernaehrung', 'selfcare', 'karriere', 'familie', 'finanzen'];
+
+    // ══════════════════════════════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════════════════════════════
+    let state = {
+      userName: 'Sarah',
+      activePillars: new Set(),
+      currentScreen: 'onboarding',
+      currentStep: 0,
+      activeSteps: ['welcome', 'pillars'],
+      tasks: [...MOCK_DATA.tasks],
+      workouts: [...MOCK_DATA.workouts],
+      notifications: [...MOCK_DATA.notifications],
+      selectedDate: new Date().getDate(),
+      caloriesConsumed: 1420,
+      caloriesGoal: 1800,
+      waterGlasses: 5,
+      weeklyWorkouts: [45, 30, 0, 60, 25, 0, 0] // Mo-So in minutes
+    };
+
+    // ══════════════════════════════════════════════════════════════
+    // STEP TEMPLATES
+    // ══════════════════════════════════════════════════════════════
+    const STEPS = {
+      welcome: { id: 'welcome', icon: 'waving_hand', iconClass: '', title: 'Willkommen bei Soothe', subtitle: 'Lass uns dein Leben sanft organisieren.<br>Wie dürfen wir dich nennen?',
+        html: () => `<div class="form-group"><label class="form-label">Dein Name</label><input type="text" class="form-input" id="userName" placeholder="z.B. Sarah" value="${state.userName}"></div>`,
+        onNext: () => { state.userName = document.getElementById('userName').value || 'Sarah'; }
+      },
+      pillars: { id: 'pillars', icon: 'interests', iconClass: '', title: 'Deine Lebensbereiche', subtitle: 'Welche Bereiche möchtest du organisieren?',
+        html: () => `<div class="pillar-grid">${PILLAR_ORDER.map(id => `<div class="pillar-card ${id}" data-pillar="${id}" onclick="togglePillar(this)"><span class="material-symbols-outlined">${PILLARS[id].icon}</span><span>${PILLARS[id].name}</span></div>`).join('')}</div><div class="info-message"><span class="material-symbols-outlined">info</span><span>Du kannst jederzeit Bereiche in den Einstellungen ändern.</span></div>`,
+        onNext: () => { 
+          state.activePillars.clear();
+          document.querySelectorAll('.pillar-card.selected').forEach(el => state.activePillars.add(el.dataset.pillar));
+          if (state.activePillars.size === 0) { alert('Bitte wähle mindestens einen Bereich.'); return false; }
+          buildSteps(); return true;
+        }
+      },
+      sport: { id: 'sport', icon: 'fitness_center', iconClass: 'sport', title: 'Dein Sport', subtitle: 'Wie möchtest du dich fit halten?',
+        html: () => `<div class="form-group"><label class="form-label">Fitness-Level</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Einsteiger</button><button class="option-btn" onclick="selectOption(this)">Fortgeschritten</button><button class="option-btn" onclick="selectOption(this)">Profi</button></div></div><div class="slider-container"><div class="slider-header"><label class="form-label">Workouts pro Woche</label><span class="slider-value" id="workoutsValue">3×</span></div><input type="range" class="slider" min="1" max="7" value="3" oninput="updateSlider('workouts', this.value, '×')"></div><div class="form-group"><label class="form-label">Lieblingssport</label><div class="option-group"><button class="option-btn" onclick="toggleOption(this)">Yoga</button><button class="option-btn" onclick="toggleOption(this)">Laufen</button><button class="option-btn" onclick="toggleOption(this)">Krafttraining</button><button class="option-btn" onclick="toggleOption(this)">Schwimmen</button></div></div>`
+      },
+      ernaehrung: { id: 'ernaehrung', icon: 'restaurant', iconClass: 'ernaehrung', title: 'Deine Ernährung', subtitle: 'Wie ernährst du dich?',
+        html: () => `<div class="form-group"><label class="form-label">Ernährungsform</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Alles</button><button class="option-btn" onclick="selectOption(this)">Vegetarisch</button><button class="option-btn" onclick="selectOption(this)">Vegan</button></div></div><div class="slider-container"><div class="slider-header"><label class="form-label">Kalorienziel</label><span class="slider-value" id="caloriesValue">1.800 kcal</span></div><input type="range" class="slider" min="1200" max="3000" step="50" value="1800" oninput="updateSlider('calories', this.value, ' kcal', true)"></div>`
+      },
+      karriere: { id: 'karriere', icon: 'work', iconClass: 'karriere', title: 'Deine Karriere', subtitle: 'Was sind deine beruflichen Ziele?',
+        html: () => `<div class="form-group"><label class="form-label">Status</label><div class="option-group"><button class="option-btn selected" onclick="selectOption(this)">Angestellt</button><button class="option-btn" onclick="selectOption(this)">Selbstständig</button><button class="option-btn" onclick="selectOption(this)">Elternzeit</button></div></div><div class="form-group"><label class="form-label">Fokus</label><div class="option-group"><button class="option-btn selected" onclick="toggleOption(this)">Work-Life-Balance</button><button class="option-btn" onclick="toggleOption(this)">Produktivität</button><button class="option-btn" onclick="toggleOption(this)">Weiterbildung</button></div></div>`
+      },
+      familie: { id: 'familie', icon: 'family_restroom', iconClass: 'familie', title: 'Deine Familie', subtitle: 'Erzähl uns von deinen Kindern',
+        html: () => `<div class="form-group"><label class="form-label">Kinder</label><div class="children-list" id="childrenList">${MOCK_DATA.children.map(c => `<div class="child-card"><input type="text" placeholder="Name" value="${c.name}"><input type="number" placeholder="Alter" value="${c.age}" min="0" max="25"><button class="remove-child" onclick="removeChild(this)"><span class="material-symbols-outlined">close</span></button></div>`).join('')}</div><button class="add-child-btn" onclick="addChild()"><span class="material-symbols-outlined">add</span>Kind hinzufügen</button></div><div class="toggle-row"><div><div class="toggle-label">Wechselmodell</div><div class="toggle-sublabel">Kinder wechseln zwischen Haushalten</div></div><div class="toggle" onclick="this.classList.toggle('active')"></div></div>`
+      },
+      selfcare: { id: 'selfcare', icon: 'spa', iconClass: 'selfcare', title: 'Deine Selfcare', subtitle: 'Wie moechtest du fuer dich sorgen?',
+        html: () => `<div class="form-group"><label class="form-label">Was ist dir wichtig?</label><div class="option-group"><button class="option-btn selected" onclick="toggleOption(this)">Achtsamkeit</button><button class="option-btn" onclick="toggleOption(this)">Journaling</button><button class="option-btn" onclick="toggleOption(this)">Zyklustracking</button><button class="option-btn" onclick="toggleOption(this)">Stimmungstracker</button></div></div><div class="toggle-row"><div><div class="toggle-label">Taegliche Erinnerung</div><div class="toggle-sublabel">Sanfte Erinnerung fuer deine Selfcare-Routine</div></div><div class="toggle active" onclick="this.classList.toggle('active')"></div></div><div class="info-message"><span class="material-symbols-outlined">spa</span><span>Dein sicherer Ort. Alles hier ist nur fuer dich.</span></div>`
+      },
+      finanzen: { id: 'finanzen', icon: 'account_balance_wallet', iconClass: 'finanzen', title: 'Deine Finanzen', subtitle: 'Behalte den Überblick',
+        html: () => `<div class="slider-container"><div class="slider-header"><label class="form-label">Monatliches Budget</label><span class="slider-value" id="budgetValue">3.500 €</span></div><input type="range" class="slider" min="1000" max="10000" step="100" value="3500" oninput="updateSlider('budget', this.value, ' €', true)"></div><div class="slider-container"><div class="slider-header"><label class="form-label">Sparziel</label><span class="slider-value" id="savingsValue">500 €</span></div><input type="range" class="slider" min="0" max="2000" step="50" value="500" oninput="updateSlider('savings', this.value, ' €', true)"></div>`
+      }
+    };
+
+    // ══════════════════════════════════════════════════════════════
+    // RENDER FUNCTIONS
+    // ══════════════════════════════════════════════════════════════
+    function render() {
+      const app = document.getElementById('app');
+      
+      if (state.currentScreen === 'onboarding') {
+        app.innerHTML = renderOnboarding();
+      } else {
+        app.innerHTML = renderMainApp();
+      }
+    }
+
+    function renderOnboarding() {
+      const step = STEPS[state.activeSteps[state.currentStep]];
+      const isLast = state.currentStep === state.activeSteps.length - 1;
+      
+      return `
+        <div class="onboarding">
+          <div class="onboarding-header">
+            <svg class="onboarding-logo" viewBox="0 0 100 100" fill="none">
+              <path d="M50 15 Q55 35, 50 55 Q45 35, 50 15" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M35 25 Q45 40, 42 58 Q32 42, 35 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M65 25 Q55 40, 58 58 Q68 42, 65 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M22 35 Q35 48, 35 65 Q20 50, 22 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M78 35 Q65 48, 65 65 Q80 50, 78 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M12 50 Q28 55, 30 72 Q15 60, 12 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M88 50 Q72 55, 70 72 Q85 60, 88 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <path d="M25 75 Q50 85, 75 75" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+            </svg>
+            <div class="onboarding-brand">soothe</div>
+          </div>
+          <div class="onboarding-progress">
+            ${state.activeSteps.map((_, i) => `<div class="progress-dot ${i < state.currentStep ? 'completed' : ''} ${i === state.currentStep ? 'active' : ''}"></div>`).join('')}
+          </div>
+          <div class="onboarding-content">
+            <div class="onboarding-step active">
+              <div class="step-icon ${step.iconClass}"><span class="material-symbols-outlined">${step.icon}</span></div>
+              <h2 class="step-title">${step.title}</h2>
+              <p class="step-subtitle">${step.subtitle}</p>
+              <div class="step-content">${step.html()}</div>
+              <div class="onboarding-nav">
+                ${state.currentStep > 0 ? `<button class="btn btn-secondary" onclick="prevStep()"><span class="material-symbols-outlined">arrow_back</span>Zurück</button>` : ''}
+                <button class="btn btn-primary" onclick="${isLast ? 'finishOnboarding()' : 'nextStep()'}">
+                  ${isLast ? "Los geht's" : 'Weiter'}
+                  <span class="material-symbols-outlined">${isLast ? 'check' : 'arrow_forward'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMainApp() {
+      const screens = {
+        home: renderHomeScreen,
+        calendar: renderCalendarScreen,
+        add: renderAddScreen,
+        insights: renderInsightsScreen,
+        profile: renderProfileScreen,
+        notifications: renderNotificationsScreen,
+        sport: renderSportDetail,
+        ernaehrung: renderErnaehrungDetail,
+        selfcare: renderSelfcareDetail,
+        karriere: renderKarriereDetail,
+        familie: renderFamilieDetail,
+        finanzen: renderFinanzenDetail,
+        recipe: renderRecipeDetail,
+        mealplanner: renderMealPlanner,
+        shoppinglist: renderShoppingList,
+        weighttracking: renderWeightTracking,
+        habits: renderHabitsScreen,
+        premium: renderPremiumScreen
+      };
+      
+      const screenFn = screens[state.currentScreen] || renderHomeScreen;
+      const unreadCount = state.notifications.filter(n => n.unread).length;
+      
+      return `
+        ${screenFn()}
+        ${!['notifications', 'recipe', 'mealplanner', 'shoppinglist', 'weighttracking', 'habits', 'premium'].includes(state.currentScreen) && !PILLAR_ORDER.includes(state.currentScreen) ? `
+        <nav class="bottom-nav">
+          <button class="nav-item ${state.currentScreen === 'home' ? 'active' : ''}" onclick="navigate('home')"><span class="material-symbols-outlined">home</span><span>Home</span></button>
+          <button class="nav-item ${state.currentScreen === 'calendar' ? 'active' : ''}" onclick="navigate('calendar')"><span class="material-symbols-outlined">calendar_month</span><span>Kalender</span></button>
+          <button class="nav-item ${state.currentScreen === 'add' ? 'active' : ''}" onclick="navigate('add')"><span class="material-symbols-outlined">add_circle</span><span>Neu</span></button>
+          <button class="nav-item ${state.currentScreen === 'insights' ? 'active' : ''}" onclick="navigate('insights')"><span class="material-symbols-outlined">insights</span><span>Insights</span></button>
+          <button class="nav-item ${state.currentScreen === 'profile' ? 'active' : ''}" onclick="navigate('profile')"><span class="material-symbols-outlined">person</span><span>Profil</span></button>
+        </nav>
+        ` : ''}
+      `;
+    }
+
+    function renderHomeScreen() {
+      const greeting = getGreeting();
+      const quote = MOCK_DATA.quotes[Math.floor(Math.random() * MOCK_DATA.quotes.length)];
+      const unreadCount = state.notifications.filter(n => n.unread).length;
+      
+      // Calculate pillar data
+      const pillarData = {
+        sport: { status: `${state.workouts.filter(w => w.completed).length} von ${state.workouts.length} Workouts`, progress: Math.round(state.workouts.filter(w => w.completed).length / state.workouts.length * 100) },
+        ernaehrung: { status: `${state.caloriesConsumed.toLocaleString('de-DE')} / ${state.caloriesGoal.toLocaleString('de-DE')} kcal`, progress: Math.round(state.caloriesConsumed / state.caloriesGoal * 100) },
+        selfcare: { status: `${MOCK_DATA.habits.filter(h => h.completedToday).length} von ${MOCK_DATA.habits.length} Gewohnheiten`, progress: Math.round(MOCK_DATA.habits.filter(h => h.completedToday).length / MOCK_DATA.habits.length * 100) },
+        karriere: { status: `${state.tasks.filter(t => !t.completed).length} Aufgaben offen`, progress: Math.round(state.tasks.filter(t => t.completed).length / state.tasks.length * 100) },
+        familie: { status: `${MOCK_DATA.familyEvents[0].title} ${MOCK_DATA.familyEvents[0].time}`, progress: 50 },
+        finanzen: { status: `${(MOCK_DATA.budget.total - MOCK_DATA.budget.spent).toLocaleString('de-DE')} € verbleibend`, progress: Math.round((MOCK_DATA.budget.total - MOCK_DATA.budget.spent) / MOCK_DATA.budget.total * 100) }
+      };
+      
+      const focusItems = [];
+      if (state.activePillars.has('sport')) {
+        const nextWorkout = state.workouts.find(w => !w.completed);
+        if (nextWorkout) focusItems.push({ pillar: 'sport', icon: 'fitness_center', title: nextWorkout.title, desc: `${nextWorkout.duration} Min`, time: nextWorkout.time });
+      }
+      if (state.activePillars.has('ernaehrung')) {
+        focusItems.push({ pillar: 'ernaehrung', icon: 'lunch_dining', title: 'Nächste Mahlzeit', desc: 'Mittagessen planen', time: '12:30' });
+      }
+      if (state.activePillars.has('selfcare')) {
+        focusItems.push({ pillar: 'selfcare', icon: 'spa', title: 'Selfcare Check-in', desc: 'Wie fuehlst du dich heute?', time: '' });
+      }
+      if (state.activePillars.has('karriere')) {
+        const nextTask = state.tasks.find(t => !t.completed);
+        if (nextTask) focusItems.push({ pillar: 'karriere', icon: 'task_alt', title: nextTask.text.substring(0, 20) + '...', desc: nextTask.meta, time: '' });
+      }
+      if (state.activePillars.has('familie')) {
+        focusItems.push({ pillar: 'familie', icon: 'event', title: MOCK_DATA.familyEvents[0].title, desc: MOCK_DATA.familyEvents[0].location, time: MOCK_DATA.familyEvents[0].time });
+      }
+      if (state.activePillars.has('finanzen')) {
+        focusItems.push({ pillar: 'finanzen', icon: 'receipt_long', title: 'Budget Check', desc: `${Math.round(MOCK_DATA.budget.spent / MOCK_DATA.budget.total * 100)}% ausgegeben`, time: '' });
+      }
+
+      return `
+        <div class="screen active">
+          <header class="app-header">
+            <div class="header-top">
+              <div class="header-logo">
+                <svg viewBox="0 0 100 100" fill="none"><path d="M50 15 Q55 35, 50 55 Q45 35, 50 15" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M35 25 Q45 40, 42 58 Q32 42, 35 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M65 25 Q55 40, 58 58 Q68 42, 65 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M22 35 Q35 48, 35 65 Q20 50, 22 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M78 35 Q65 48, 65 65 Q80 50, 78 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M12 50 Q28 55, 30 72 Q15 60, 12 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M88 50 Q72 55, 70 72 Q85 60, 88 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M25 75 Q50 85, 75 75" stroke="#C9A88C" stroke-width="1.5" fill="none"/></svg>
+                <span>soothe</span>
+              </div>
+              <div class="header-actions">
+                <button class="header-btn" onclick="navigate('notifications')">
+                  <span class="material-symbols-outlined">notifications</span>
+                  ${unreadCount > 0 ? '<span class="notification-badge"></span>' : ''}
+                </button>
+                <button class="header-btn" onclick="navigate('profile')"><span class="material-symbols-outlined">settings</span></button>
+              </div>
+            </div>
+            <div class="greeting">
+              <div class="greeting-text">${greeting}, ${state.userName}</div>
+              <div class="greeting-date">${formatDate(new Date())}</div>
+            </div>
+          </header>
+          
+          <div class="quote-card" onclick="this.querySelector('.quote-text').textContent = MOCK_DATA.quotes[Math.floor(Math.random() * MOCK_DATA.quotes.length)]">
+            <p class="quote-text">${quote}</p>
+          </div>
+          
+          <div class="premium-banner" onclick="navigate('premium')">
+            <div class="premium-banner-title">Soothe Premium</div>
+            <div class="premium-banner-text">300+ Rezepte, Meal Planner, Gewichts-Tracking & mehr</div>
+            <div class="premium-badge"><span class="material-symbols-outlined" style="font-size: 16px;">workspace_premium</span>7 Tage gratis testen</div>
+          </div>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">Deine Bereiche</h2>
+            </div>
+            <div class="pillar-cards">
+              ${PILLAR_ORDER.filter(id => state.activePillars.has(id)).map(id => {
+                const p = PILLARS[id];
+                const data = pillarData[id];
+                const offset = 125.6 * (1 - data.progress / 100);
+                return `
+                  <div class="dashboard-pillar ${id}" onclick="navigate('${id}')">
+                    <div class="pillar-icon"><span class="material-symbols-outlined">${p.icon}</span></div>
+                    <div class="pillar-info">
+                      <div class="pillar-name">${p.name}</div>
+                      <div class="pillar-status">${data.status}</div>
+                    </div>
+                    <div class="pillar-progress">
+                      <svg width="48" height="48" viewBox="0 0 48 48">
+                        <circle class="bg" cx="24" cy="24" r="20"/>
+                        <circle class="progress" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="${offset}"/>
+                      </svg>
+                      <span class="progress-text">${data.progress}%</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+              ${state.activePillars.size < PILLAR_ORDER.length ? `
+                <div class="add-area-card" onclick="openAddPillarModal()">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info"><div class="pillar-name">Bereich hinzufügen</div></div>
+                </div>
+              ` : ''}
+            </div>
+          </section>
+          
+          ${focusItems.length > 0 ? `
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">Heute im Fokus</h2>
+              <span class="section-link" onclick="navigate('calendar')">Alle ansehen</span>
+            </div>
+            <div class="focus-cards">
+              ${focusItems.map(item => `
+                <div class="focus-card ${item.pillar}" onclick="navigate('${item.pillar}')">
+                  <span class="material-symbols-outlined">${item.icon}</span>
+                  <div class="focus-title">${item.title}</div>
+                  <div class="focus-desc">${item.desc}</div>
+                  ${item.time ? `<div class="focus-time">${item.time}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </section>
+          ` : ''}
+          
+          ${state.activePillars.has('karriere') ? `
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">Aufgaben</h2>
+              <span class="section-link" onclick="navigate('karriere')">Alle ansehen</span>
+            </div>
+            <div class="task-list">
+              ${state.tasks.slice(0, 3).map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTask(${task.id})">
+                  <div class="task-checkbox"><span class="material-symbols-outlined">check</span></div>
+                  <div class="task-content">
+                    <div class="task-text">${task.text}</div>
+                    <div class="task-meta">${task.meta}</div>
+                  </div>
+                  <div class="task-priority ${task.priority}"></div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+          ` : ''}
+        </div>
+        
+        <div class="modal-overlay" id="addPillarModal">
+          <div class="modal">
+            <div class="modal-header">
+              <h2 class="modal-title">Bereich hinzufügen</h2>
+              <button class="modal-close" onclick="closeAddPillarModal()"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div id="addPillarGrid">
+              ${PILLAR_ORDER.map(id => {
+                const p = PILLARS[id];
+                const active = state.activePillars.has(id);
+                return `<div class="add-pillar-item ${id} ${active ? 'disabled' : ''}" ${active ? '' : `onclick="addPillar('${id}')"`}><span class="material-symbols-outlined">${p.icon}</span><span>${p.name}</span>${active ? '<span class="material-symbols-outlined check">check</span>' : ''}</div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCalendarScreen() {
+      const today = new Date();
+      const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const startDay = (firstDay.getDay() + 6) % 7;
+      
+      const eventDates = MOCK_DATA.calendarEvents.map(e => e.date);
+      const selectedEvents = MOCK_DATA.calendarEvents.filter(e => e.date === state.selectedDate);
+      
+      let days = '';
+      for (let i = 0; i < startDay; i++) {
+        days += '<div class="calendar-day other-month"></div>';
+      }
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const isToday = d === today.getDate();
+        const isSelected = d === state.selectedDate;
+        const hasEvent = eventDates.includes(d);
+        days += `<div class="calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" onclick="selectDate(${d})">${d}${hasEvent ? '<span class="event-dot"></span>' : ''}</div>`;
+      }
+      
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <h1>Kalender</h1>
+          </header>
+          
+          <div class="calendar-header">
+            <span class="calendar-month">${monthNames[today.getMonth()]} ${today.getFullYear()}</span>
+            <div class="calendar-nav">
+              <button><span class="material-symbols-outlined">chevron_left</span></button>
+              <button><span class="material-symbols-outlined">chevron_right</span></button>
+            </div>
+          </div>
+          
+          <div class="calendar-grid">
+            ${dayNames.map(d => `<div class="calendar-day-name">${d}</div>`).join('')}
+            ${days}
+          </div>
+          
+          <div class="calendar-events">
+            <h3 class="section-title" style="padding: 0 0 12px;">Termine am ${state.selectedDate}. ${monthNames[today.getMonth()]}</h3>
+            ${selectedEvents.length > 0 ? selectedEvents.map(e => `
+              <div class="event-item ${e.pillar}" onclick="navigate('${e.pillar}')">
+                <div class="event-time">${e.time || 'Ganztägig'}</div>
+                <div class="event-info">
+                  <div class="event-title">${e.title}</div>
+                </div>
+              </div>
+            `).join('') : '<p style="color: var(--charcoal-light); text-align: center; padding: 20px;">Keine Termine an diesem Tag</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAddScreen() {
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <h1>Neu erstellen</h1>
+          </header>
+          
+          <div class="section" style="padding-top: 20px;">
+            <div class="pillar-cards">
+              ${state.activePillars.has('sport') ? `
+                <div class="dashboard-pillar sport" onclick="showToast('Workout hinzufügen...')">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info">
+                    <div class="pillar-name">Workout planen</div>
+                    <div class="pillar-status">Neues Training hinzufügen</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${state.activePillars.has('ernaehrung') ? `
+                <div class="dashboard-pillar ernaehrung" onclick="showToast('Mahlzeit hinzufügen...')">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info">
+                    <div class="pillar-name">Mahlzeit tracken</div>
+                    <div class="pillar-status">Essen protokollieren</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${state.activePillars.has('selfcare') ? `
+                <div class="dashboard-pillar selfcare" onclick="navigate('selfcare')">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info">
+                    <div class="pillar-name">Selfcare Moment</div>
+                    <div class="pillar-status">Nimm dir einen Moment</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${state.activePillars.has('karriere') ? `
+                <div class="dashboard-pillar karriere" onclick="showToast('Aufgabe hinzufügen...')">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info">
+                    <div class="pillar-name">Aufgabe erstellen</div>
+                    <div class="pillar-status">Neue To-Do anlegen</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${state.activePillars.has('familie') ? `
+                <div class="dashboard-pillar familie" onclick="showToast('Termin hinzufügen...')">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info">
+                    <div class="pillar-name">Familientermin</div>
+                    <div class="pillar-status">Neuen Termin eintragen</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${state.activePillars.has('finanzen') ? `
+                <div class="dashboard-pillar finanzen" onclick="showToast('Transaktion hinzufügen...')">
+                  <div class="pillar-icon"><span class="material-symbols-outlined">add</span></div>
+                  <div class="pillar-info">
+                    <div class="pillar-name">Ausgabe erfassen</div>
+                    <div class="pillar-status">Neue Transaktion</div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderInsightsScreen() {
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <h1>Insights</h1>
+          </header>
+          
+          <div class="tabs">
+            <button class="tab active">Woche</button>
+            <button class="tab">Monat</button>
+            <button class="tab">Jahr</button>
+          </div>
+          
+          ${state.activePillars.has('sport') ? `
+          <div class="chart-container">
+            <h3 class="section-title" style="margin-bottom: 16px;">Sport Aktivität</h3>
+            <div class="chart-placeholder">
+              ${state.weeklyWorkouts.map((m, i) => `<div class="chart-bar" style="height: ${m ? m * 1.5 : 10}px; background: ${m ? 'var(--sport)' : 'var(--sand)'}"></div>`).join('')}
+            </div>
+            <div class="chart-labels"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+          </div>
+          ` : ''}
+          
+          ${state.activePillars.has('ernaehrung') ? `
+          <div class="chart-container">
+            <h3 class="section-title" style="margin-bottom: 16px;">Kalorien diese Woche</h3>
+            <div class="chart-placeholder">
+              ${[1650, 1780, 1420, 1850, 1600, 0, 0].map((c, i) => `<div class="chart-bar" style="height: ${c ? c/12 : 10}px; background: ${c ? 'var(--ernaehrung)' : 'var(--sand)'}"></div>`).join('')}
+            </div>
+            <div class="chart-labels"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+          </div>
+          ` : ''}
+          
+          <div class="stats-row">
+            ${state.activePillars.has('sport') ? `<div class="stat-card"><div class="stat-value">${state.weeklyWorkouts.reduce((a,b) => a+b, 0)}</div><div class="stat-label">Min Sport</div></div>` : ''}
+            ${state.activePillars.has('karriere') ? `<div class="stat-card"><div class="stat-value">${state.tasks.filter(t => t.completed).length}</div><div class="stat-label">Tasks erledigt</div></div>` : ''}
+            ${state.activePillars.has('ernaehrung') ? `<div class="stat-card"><div class="stat-value">${state.waterGlasses}</div><div class="stat-label">Gläser Wasser</div></div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProfileScreen() {
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <h1>Profil</h1>
+          </header>
+          
+          <div class="settings-content">
+            <div class="profile-card">
+              <div class="profile-avatar"><span class="material-symbols-outlined">person</span></div>
+              <div class="profile-info">
+                <h3>${state.userName}</h3>
+                <p>${state.userName.toLowerCase()}@example.com</p>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">Aktive Bereiche</h3>
+              <div class="settings-card">
+                ${PILLAR_ORDER.filter(id => state.activePillars.has(id)).map(id => {
+                  const p = PILLARS[id];
+                  return `<div class="settings-item ${id}" onclick="navigate('${id}')"><span class="material-symbols-outlined">${p.icon}</span><div class="settings-item-content"><div class="settings-item-title">${p.name}</div><div class="settings-item-desc">Aktiv</div></div><span class="material-symbols-outlined chevron">chevron_right</span></div>`;
+                }).join('')}
+              </div>
+            </div>
+            
+            ${PILLAR_ORDER.filter(id => !state.activePillars.has(id)).length > 0 ? `
+            <div class="settings-section">
+              <h3 class="settings-section-title">Bereiche hinzufügen</h3>
+              <div class="settings-card">
+                ${PILLAR_ORDER.filter(id => !state.activePillars.has(id)).map(id => {
+                  const p = PILLARS[id];
+                  return `<div class="settings-item ${id} inactive" onclick="addPillar('${id}')"><span class="material-symbols-outlined">${p.icon}</span><div class="settings-item-content"><div class="settings-item-title">${p.name}</div><div class="settings-item-desc">Tippen zum Hinzufügen</div></div><span class="material-symbols-outlined add-badge">add</span></div>`;
+                }).join('')}
+              </div>
+            </div>
+            ` : ''}
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">App-Einstellungen</h3>
+              <div class="settings-card">
+                <div class="settings-item"><span class="material-symbols-outlined">notifications</span><div class="settings-item-content"><div class="settings-item-title">Benachrichtigungen</div><div class="settings-item-desc">Push-Nachrichten aktiviert</div></div><div class="settings-toggle active" onclick="this.classList.toggle('active')"></div></div>
+                <div class="settings-item"><span class="material-symbols-outlined">dark_mode</span><div class="settings-item-content"><div class="settings-item-title">Dark Mode</div><div class="settings-item-desc">Aktuell: Hell</div></div><div class="settings-toggle" onclick="this.classList.toggle('active')"></div></div>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">Konto</h3>
+              <div class="settings-card">
+                <div class="settings-item" onclick="restartOnboarding()"><span class="material-symbols-outlined">restart_alt</span><div class="settings-item-content"><div class="settings-item-title">Setup neu starten</div><div class="settings-item-desc">Onboarding erneut durchlaufen</div></div><span class="material-symbols-outlined chevron">chevron_right</span></div>
+                <div class="settings-item danger"><span class="material-symbols-outlined">logout</span><div class="settings-item-content"><div class="settings-item-title">Abmelden</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderNotificationsScreen() {
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Benachrichtigungen</h1>
+            <button class="header-btn" onclick="markAllRead()"><span class="material-symbols-outlined">done_all</span></button>
+          </header>
+          
+          <div class="notification-list">
+            ${state.notifications.map(n => `
+              <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="markNotificationRead(${n.id})">
+                <div class="notification-icon ${n.pillar}"><span class="material-symbols-outlined">${PILLARS[n.pillar].icon}</span></div>
+                <div class="notification-content">
+                  <div class="notification-title">${n.title}</div>
+                  <div class="notification-text">${n.text}</div>
+                  <div class="notification-time">${n.time}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSportDetail() {
+      const completedWorkouts = state.workouts.filter(w => w.completed).length;
+      const totalMinutes = state.workouts.filter(w => w.completed).reduce((a, w) => a + w.duration, 0);
+      const totalCalories = state.workouts.filter(w => w.completed).reduce((a, w) => a + w.calories, 0);
+      
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Sport</h1>
+            <button class="header-btn" onclick="showToast('Workout hinzufügen...')"><span class="material-symbols-outlined">add</span></button>
+          </header>
+          
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">${completedWorkouts}/${state.workouts.length}</div><div class="stat-label">Workouts</div></div>
+            <div class="stat-card"><div class="stat-value">${totalMinutes}</div><div class="stat-label">Minuten</div></div>
+            <div class="stat-card"><div class="stat-value">${totalCalories}</div><div class="stat-label">Kalorien</div></div>
+          </div>
+          
+          <div class="section" style="padding-top: 0;">
+            <div class="pillar-cards">
+              <div class="dashboard-pillar sport" onclick="navigate('weighttracking')">
+                <div class="pillar-icon"><span class="material-symbols-outlined">monitor_weight</span></div>
+                <div class="pillar-info">
+                  <div class="pillar-name">Gewichts-Tracking</div>
+                  <div class="pillar-status">${MOCK_DATA.weightHistory[MOCK_DATA.weightHistory.length-1].weight} kg aktuell</div>
+                </div>
+                <span class="material-symbols-outlined" style="color: var(--charcoal-light);">chevron_right</span>
+              </div>
+              <div class="dashboard-pillar sport" onclick="navigate('habits')">
+                <div class="pillar-icon"><span class="material-symbols-outlined">track_changes</span></div>
+                <div class="pillar-info">
+                  <div class="pillar-name">Gewohnheiten</div>
+                  <div class="pillar-status">${MOCK_DATA.habits.filter(h => h.completedToday).length} von ${MOCK_DATA.habits.length} heute</div>
+                </div>
+                <span class="material-symbols-outlined" style="color: var(--charcoal-light);">chevron_right</span>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="padding: 0 20px 12px;">Heutige Workouts</h3>
+          ${state.workouts.map(w => `
+            <div class="workout-card ${w.completed ? 'completed' : ''}" onclick="toggleWorkout(${w.id})">
+              <div class="workout-header">
+                <div class="workout-title">${w.title}</div>
+                <span class="workout-badge ${w.completed ? 'done' : 'planned'}">${w.completed ? 'Erledigt' : w.time}</span>
+              </div>
+              <div class="workout-stats">
+                <div class="workout-stat"><span class="material-symbols-outlined">schedule</span>${w.duration} Min</div>
+                <div class="workout-stat"><span class="material-symbols-outlined">local_fire_department</span>${w.calories} kcal</div>
+              </div>
+            </div>
+          `).join('')}
+          
+          <h3 class="section-title" style="padding: 20px 20px 12px;">Diese Woche</h3>
+          <div class="chart-container" style="margin-top: 0;">
+            <div class="chart-placeholder">
+              ${state.weeklyWorkouts.map(m => `<div class="chart-bar" style="height: ${m ? m * 1.5 : 10}px; background: ${m ? 'var(--sport)' : 'var(--sand)'}"></div>`).join('')}
+            </div>
+            <div class="chart-labels"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderErnaehrungDetail() {
+      const progress = Math.round(state.caloriesConsumed / state.caloriesGoal * 100);
+      
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Ernährung</h1>
+            <button class="header-btn" onclick="showToast('Mahlzeit hinzufügen...')"><span class="material-symbols-outlined">add</span></button>
+          </header>
+          
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">${state.caloriesConsumed.toLocaleString('de-DE')}</div><div class="stat-label">von ${state.caloriesGoal.toLocaleString('de-DE')} kcal</div></div>
+            <div class="stat-card"><div class="stat-value">${state.waterGlasses}/8</div><div class="stat-label">Gläser Wasser</div></div>
+          </div>
+          
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Wasser Tracker</h2>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              ${[1,2,3,4,5,6,7,8].map(i => `
+                <div onclick="setWater(${i})" style="width: 40px; height: 40px; border-radius: 50%; background: ${i <= state.waterGlasses ? 'var(--ernaehrung)' : 'var(--sand)'}; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                  <span class="material-symbols-outlined" style="color: ${i <= state.waterGlasses ? 'white' : 'var(--charcoal-light)'}; font-size: 20px;">water_drop</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="section">
+            <div class="pillar-cards">
+              <div class="dashboard-pillar ernaehrung" onclick="navigate('mealplanner')">
+                <div class="pillar-icon"><span class="material-symbols-outlined">calendar_month</span></div>
+                <div class="pillar-info">
+                  <div class="pillar-name">Meal Planner</div>
+                  <div class="pillar-status">Woche planen</div>
+                </div>
+                <span class="material-symbols-outlined" style="color: var(--charcoal-light);">chevron_right</span>
+              </div>
+              <div class="dashboard-pillar ernaehrung" onclick="navigate('shoppinglist')">
+                <div class="pillar-icon"><span class="material-symbols-outlined">shopping_cart</span></div>
+                <div class="pillar-info">
+                  <div class="pillar-name">Einkaufsliste</div>
+                  <div class="pillar-status">${MOCK_DATA.shoppingList.filter(i => !i.checked).length} Artikel offen</div>
+                </div>
+                <span class="material-symbols-outlined" style="color: var(--charcoal-light);">chevron_right</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Rezept-Ideen</h2>
+              <span class="section-link">Alle ansehen</span>
+            </div>
+          </div>
+
+          <div class="recipe-grid">
+            ${MOCK_DATA.recipes.slice(0, 4).map(r => `
+              <div class="recipe-card" onclick="openRecipe(${r.id})">
+                <div class="recipe-image"><span class="material-symbols-outlined">restaurant</span></div>
+                <div class="recipe-content">
+                  <div class="recipe-title">${r.title}</div>
+                  <div class="recipe-meta"><span>${r.time} Min</span><span>${r.calories} kcal</span></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderKarriereDetail() {
+      const completedTasks = state.tasks.filter(t => t.completed).length;
+      
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Karriere</h1>
+            <button class="header-btn" onclick="showToast('Aufgabe hinzufügen...')"><span class="material-symbols-outlined">add</span></button>
+          </header>
+          
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">${completedTasks}/${state.tasks.length}</div><div class="stat-label">Erledigt</div></div>
+            <div class="stat-card"><div class="stat-value">${state.tasks.filter(t => t.priority === 'high' && !t.completed).length}</div><div class="stat-label">Dringend</div></div>
+          </div>
+          
+          <div class="tabs">
+            <button class="tab active">Alle</button>
+            <button class="tab">Heute</button>
+            <button class="tab">Diese Woche</button>
+          </div>
+          
+          <div class="section">
+            <div class="task-list">
+              ${state.tasks.map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTask(${task.id})">
+                  <div class="task-checkbox"><span class="material-symbols-outlined">check</span></div>
+                  <div class="task-content">
+                    <div class="task-text">${task.text}</div>
+                    <div class="task-meta">${task.meta}</div>
+                  </div>
+                  <div class="task-priority ${task.priority}"></div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFamilieDetail() {
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Familie</h1>
+            <button class="header-btn" onclick="showToast('Termin hinzufügen...')"><span class="material-symbols-outlined">add</span></button>
+          </header>
+          
+          <div class="section" style="padding-top: 20px;">
+            <div class="section-header">
+              <h2 class="section-title">Kinder</h2>
+            </div>
+            <div style="display: flex; gap: 16px;">
+              ${MOCK_DATA.children.map(c => `
+                <div style="flex: 1; background: var(--familie-bg); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                  <div style="font-size: 40px; margin-bottom: 8px;">${c.avatar}</div>
+                  <div style="font-weight: 600;">${c.name}</div>
+                  <div style="font-size: 13px; color: var(--charcoal-light);">${c.age} Jahre</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Anstehende Termine</h2>
+            </div>
+            <div class="calendar-events" style="padding: 0;">
+              ${MOCK_DATA.familyEvents.map(e => `
+                <div class="event-item familie">
+                  <div class="event-time">${e.time}</div>
+                  <div class="event-info">
+                    <div class="event-title">${e.title}</div>
+                    <div class="event-location">${e.location}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFinanzenDetail() {
+      const remaining = MOCK_DATA.budget.total - MOCK_DATA.budget.spent;
+      const percentSpent = Math.round(MOCK_DATA.budget.spent / MOCK_DATA.budget.total * 100);
+      
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Finanzen</h1>
+            <button class="header-btn" onclick="showToast('Transaktion hinzufügen...')"><span class="material-symbols-outlined">add</span></button>
+          </header>
+          
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">${remaining.toLocaleString('de-DE')} €</div><div class="stat-label">Verbleibend</div></div>
+            <div class="stat-card"><div class="stat-value">${percentSpent}%</div><div class="stat-label">Ausgegeben</div></div>
+          </div>
+          
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Budget-Kategorien</h2>
+            </div>
+            ${MOCK_DATA.budget.categories.map(c => {
+              const pct = Math.round(c.spent / c.budget * 100);
+              return `
+                <div style="margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-weight: 500;">${c.name}</span>
+                    <span style="color: var(--charcoal-light);">${c.spent} / ${c.budget} €</span>
+                  </div>
+                  <div style="height: 8px; background: var(--sand); border-radius: 4px; overflow: hidden;">
+                    <div style="height: 100%; width: ${pct}%; background: ${pct > 90 ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--finanzen)'}; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Letzte Transaktionen</h2>
+              <span class="section-link">Alle ansehen</span>
+            </div>
+          </div>
+          
+          <div class="transaction-list">
+            ${MOCK_DATA.transactions.map(t => `
+              <div class="transaction-item">
+                <div class="transaction-icon"><span class="material-symbols-outlined">${t.icon}</span></div>
+                <div class="transaction-info">
+                  <div class="transaction-name">${t.name}</div>
+                  <div class="transaction-category">${t.category} · ${t.date}</div>
+                </div>
+                <div class="transaction-amount ${t.amount > 0 ? 'income' : 'expense'}">${t.amount > 0 ? '+' : ''}${t.amount.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRecipeDetail() {
+      const recipe = MOCK_DATA.recipes.find(r => r.id === state.selectedRecipe) || MOCK_DATA.recipes[0];
+      
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('ernaehrung')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Rezept</h1>
+            <button class="header-btn" onclick="showToast('Zu Favoriten hinzugefügt!')"><span class="material-symbols-outlined">favorite_border</span></button>
+          </header>
+          
+          <div class="recipe-detail-image"><span class="material-symbols-outlined">restaurant</span></div>
+          
+          <div class="recipe-detail-content">
+            <h2 class="recipe-detail-title">${recipe.title}</h2>
+            <div class="recipe-detail-meta">
+              <span><span class="material-symbols-outlined">schedule</span>${recipe.time} Min</span>
+              <span><span class="material-symbols-outlined">signal_cellular_alt</span>${recipe.difficulty}</span>
+            </div>
+            
+            <div class="nutrition-grid">
+              <div class="nutrition-item"><div class="nutrition-value">${recipe.calories}</div><div class="nutrition-label">Kalorien</div></div>
+              <div class="nutrition-item"><div class="nutrition-value">${recipe.protein}g</div><div class="nutrition-label">Protein</div></div>
+              <div class="nutrition-item"><div class="nutrition-value">${recipe.carbs}g</div><div class="nutrition-label">Kohlenh.</div></div>
+              <div class="nutrition-item"><div class="nutrition-value">${recipe.fat}g</div><div class="nutrition-label">Fett</div></div>
+            </div>
+            
+            <h3 class="section-title" style="margin-bottom: 12px;">Zutaten</h3>
+            <div class="ingredient-list">
+              ${recipe.ingredients.map(i => `
+                <div class="ingredient-item">
+                  <span class="material-symbols-outlined" style="color: var(--ernaehrung);">check_circle</span>
+                  <span>${i}</span>
+                </div>
+              `).join('')}
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="showToast('${recipe.calories} kcal hinzugefügt!'); state.caloriesConsumed += ${recipe.calories}; navigate('ernaehrung');">
+              <span class="material-symbols-outlined">add</span>
+              Mahlzeit tracken
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MEAL PLANNER
+    // ══════════════════════════════════════════════════════════════
+    function renderMealPlanner() {
+      const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      const selectedDay = state.mealPlanDay || 0;
+      const plan = MOCK_DATA.mealPlan[selectedDay] || {};
+      const slots = [
+        { key: 'fruehstueck', label: 'Fruehstueck', icon: 'egg_alt' },
+        { key: 'mittag', label: 'Mittagessen', icon: 'lunch_dining' },
+        { key: 'abend', label: 'Abendessen', icon: 'dinner_dining' },
+        { key: 'snack', label: 'Snack', icon: 'cookie' }
+      ];
+      const totalKcal = slots.reduce((sum, s) => sum + (plan[s.key] ? plan[s.key].kcal : 0), 0);
+      const totalProtein = Math.round(totalKcal * 0.12);
+      const totalCarbs = Math.round(totalKcal * 0.22);
+      const totalFat = Math.round(totalKcal * 0.08);
+
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('ernaehrung')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Meal Planner</h1>
+            <button class="header-btn" onclick="navigate('shoppinglist')"><span class="material-symbols-outlined">shopping_cart</span></button>
+          </header>
+
+          <div class="meal-day-tabs">
+            ${dayNames.map((d, i) => `
+              <div class="meal-day-tab ${i === selectedDay ? 'active' : ''}" onclick="state.mealPlanDay=${i}; render();">
+                <div class="day-name">${d}</div>
+                <div class="day-num">${new Date().getDate() - new Date().getDay() + 1 + i}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="meal-summary">
+            <div class="meal-summary-item"><div class="meal-summary-value">${totalKcal}</div><div class="meal-summary-label">Kalorien</div></div>
+            <div class="meal-summary-item"><div class="meal-summary-value">${totalProtein}g</div><div class="meal-summary-label">Protein</div></div>
+            <div class="meal-summary-item"><div class="meal-summary-value">${totalCarbs}g</div><div class="meal-summary-label">Kohlenh.</div></div>
+            <div class="meal-summary-item"><div class="meal-summary-value">${totalFat}g</div><div class="meal-summary-label">Fett</div></div>
+          </div>
+
+          ${slots.map(s => {
+            const meal = plan[s.key];
+            if (meal) {
+              return `
+                <div class="meal-slot" onclick="openRecipe(${meal.recipeId})">
+                  <div class="meal-slot-header">
+                    <span class="meal-slot-label">${s.label}</span>
+                    <span class="meal-slot-kcal">${meal.kcal} kcal</span>
+                  </div>
+                  <div class="meal-slot-content">
+                    <div class="meal-slot-icon"><span class="material-symbols-outlined">${s.icon}</span></div>
+                    <div class="meal-slot-info">
+                      <div class="meal-slot-title">${meal.title}</div>
+                      <div class="meal-slot-meta">Tippen fuer Details</div>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: var(--charcoal-light);">chevron_right</span>
+                  </div>
+                </div>`;
+            } else {
+              return `
+                <div class="meal-slot empty" onclick="showToast('Rezept auswaehlen...')">
+                  <div class="meal-slot-header">
+                    <span class="meal-slot-label">${s.label}</span>
+                  </div>
+                  <div class="meal-slot-content">
+                    <div class="meal-slot-icon"><span class="material-symbols-outlined">add</span></div>
+                    <div class="meal-slot-info">
+                      <div class="meal-slot-title">Mahlzeit hinzufuegen</div>
+                      <div class="meal-slot-meta">Aus Rezepten waehlen</div>
+                    </div>
+                  </div>
+                </div>`;
+            }
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SHOPPING LIST
+    // ══════════════════════════════════════════════════════════════
+    function renderShoppingList() {
+      const categories = {};
+      MOCK_DATA.shoppingList.forEach(item => {
+        if (!categories[item.category]) categories[item.category] = [];
+        categories[item.category].push(item);
+      });
+      const checkedCount = MOCK_DATA.shoppingList.filter(i => i.checked).length;
+      const totalCount = MOCK_DATA.shoppingList.length;
+
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('mealplanner')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Einkaufsliste</h1>
+            <button class="header-btn" onclick="showToast('Liste geteilt!')"><span class="material-symbols-outlined">share</span></button>
+          </header>
+
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">${checkedCount}/${totalCount}</div><div class="stat-label">Erledigt</div></div>
+            <div class="stat-card"><div class="stat-value">${totalCount - checkedCount}</div><div class="stat-label">Noch offen</div></div>
+          </div>
+
+          <div class="shopping-section">
+            ${Object.entries(categories).map(([cat, items]) => `
+              <div class="shopping-category">
+                <div class="shopping-category-title">${cat}</div>
+                ${items.map(item => `
+                  <div class="shopping-item ${item.checked ? 'checked' : ''}" onclick="toggleShoppingItem(${item.id})">
+                    <div class="shopping-check"><span class="material-symbols-outlined">check</span></div>
+                    <span class="shopping-text">${item.text}</span>
+                    <span class="shopping-amount">${item.amount}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // WEIGHT TRACKING
+    // ══════════════════════════════════════════════════════════════
+    function renderWeightTracking() {
+      const data = MOCK_DATA.weightHistory;
+      const current = data[data.length - 1].weight;
+      const start = data[0].weight;
+      const diff = (start - current).toFixed(1);
+      const goal = 75;
+      const remaining = (current - goal).toFixed(1);
+      const maxW = Math.max(...data.map(d => d.weight));
+      const minW = Math.min(...data.map(d => d.weight));
+      const range = maxW - minW || 1;
+
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('sport')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Gewicht</h1>
+          </header>
+
+          <div class="weight-input-card">
+            <div style="text-align: center; margin-bottom: 12px; font-size: 13px; color: var(--charcoal-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Heutiges Gewicht</div>
+            <div class="weight-input-row">
+              <button class="btn btn-secondary btn-sm" onclick="adjustWeight(-0.1)"><span class="material-symbols-outlined">remove</span></button>
+              <input type="number" class="weight-input" id="weightInput" value="${current}" step="0.1" min="40" max="200">
+              <span class="weight-unit">kg</span>
+              <button class="btn btn-secondary btn-sm" onclick="adjustWeight(0.1)"><span class="material-symbols-outlined">add</span></button>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="showToast('Gewicht gespeichert!')">
+              <span class="material-symbols-outlined">save</span>Speichern
+            </button>
+          </div>
+
+          <div class="weight-stats">
+            <div class="weight-stat"><div class="weight-stat-value">${current} kg</div><div class="weight-stat-label">Aktuell</div></div>
+            <div class="weight-stat"><div class="weight-stat-value">-${diff} kg</div><div class="weight-stat-label">Verloren</div></div>
+            <div class="weight-stat"><div class="weight-stat-value">${remaining} kg</div><div class="weight-stat-label">Bis Ziel</div></div>
+          </div>
+
+          <div class="weight-chart">
+            <h3 class="section-title" style="margin-bottom: 16px;">Verlauf</h3>
+            <div class="weight-chart-area">
+              <svg width="100%" height="100%" viewBox="0 0 300 140" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--sport)" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="var(--sport)" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="${data.map((d, i) => {
+                  const x = (i / (data.length - 1)) * 300;
+                  const y = 130 - ((d.weight - minW) / range) * 120;
+                  return (i === 0 ? 'M' : 'L') + x + ' ' + y;
+                }).join(' ')} L300 140 L0 140 Z" fill="url(#weightGrad)"/>
+                <path d="${data.map((d, i) => {
+                  const x = (i / (data.length - 1)) * 300;
+                  const y = 130 - ((d.weight - minW) / range) * 120;
+                  return (i === 0 ? 'M' : 'L') + x + ' ' + y;
+                }).join(' ')}" fill="none" stroke="var(--sport)" stroke-width="2.5" stroke-linecap="round"/>
+                ${data.map((d, i) => {
+                  const x = (i / (data.length - 1)) * 300;
+                  const y = 130 - ((d.weight - minW) / range) * 120;
+                  return `<circle cx="${x}" cy="${y}" r="4" fill="var(--sport)" stroke="white" stroke-width="2"/>`;
+                }).join('')}
+              </svg>
+            </div>
+            <div class="weight-chart-labels">
+              ${data.map(d => `<span>${d.date}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // HABITS
+    // ══════════════════════════════════════════════════════════════
+    function renderHabitsScreen() {
+      const dayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      const todayIdx = (new Date().getDay() + 6) % 7;
+      const completedToday = MOCK_DATA.habits.filter(h => h.completedToday).length;
+
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Gewohnheiten</h1>
+            <button class="header-btn" onclick="showToast('Gewohnheit hinzufuegen...')"><span class="material-symbols-outlined">add</span></button>
+          </header>
+
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">${completedToday}/${MOCK_DATA.habits.length}</div><div class="stat-label">Heute</div></div>
+            <div class="stat-card"><div class="stat-value">${Math.max(...MOCK_DATA.habits.map(h => h.streak))}</div><div class="stat-label">Beste Streak</div></div>
+          </div>
+
+          <div class="habit-list">
+            ${MOCK_DATA.habits.map(h => `
+              <div class="habit-card ${h.completedToday ? 'completed-today' : ''}">
+                <div class="habit-header">
+                  <div class="habit-icon" style="background: ${h.color}"><span class="material-symbols-outlined">${h.icon}</span></div>
+                  <div class="habit-info">
+                    <div class="habit-name">${h.name}</div>
+                    <div class="habit-streak"><span class="material-symbols-outlined">local_fire_department</span>${h.streak} Tage Streak</div>
+                  </div>
+                  <button class="habit-check-btn ${h.completedToday ? 'checked' : ''}" onclick="toggleHabit(${h.id})">
+                    <span class="material-symbols-outlined">check</span>
+                  </button>
+                </div>
+                <div class="habit-week">
+                  ${h.weekDays.map((done, i) => `<div class="habit-day ${done ? 'done' : ''} ${i === todayIdx ? 'today' : ''}"></div>`).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SELFCARE
+    // ══════════════════════════════════════════════════════════════
+    function renderSelfcareDetail() {
+      const moods = [
+        { emoji: '&#128554;', label: 'Muede', value: 1 },
+        { emoji: '&#128532;', label: 'Traurig', value: 2 },
+        { emoji: '&#128528;', label: 'Okay', value: 3 },
+        { emoji: '&#128522;', label: 'Gut', value: 4 },
+        { emoji: '&#129321;', label: 'Super', value: 5 }
+      ];
+      const prompt = MOCK_DATA.selfcare.journalPrompts[Math.floor(Math.random() * MOCK_DATA.selfcare.journalPrompts.length)];
+      const exercise = MOCK_DATA.selfcare.miniExercises[Math.floor(Math.random() * MOCK_DATA.selfcare.miniExercises.length)];
+      const cycleDay = MOCK_DATA.selfcare.cycleDay;
+      const cycleLength = MOCK_DATA.selfcare.cycleLength;
+      const cycleProgress = Math.round((cycleDay / cycleLength) * 100);
+
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Selfcare</h1>
+          </header>
+
+          <div class="section" style="padding-top: 20px;">
+            <div class="section-header">
+              <h2 class="section-title">Wie fuehlst du dich?</h2>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 8px;">
+              ${moods.map(m => `
+                <div onclick="selectMood(${m.value})" style="flex: 1; text-align: center; padding: 14px 4px; background: ${state.selectedMood === m.value ? 'var(--selfcare-bg)' : 'var(--cream)'}; border: 2px solid ${state.selectedMood === m.value ? 'var(--selfcare)' : 'transparent'}; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+                  <div style="font-size: 28px;">${m.emoji}</div>
+                  <div style="font-size: 11px; color: var(--charcoal-light); margin-top: 4px;">${m.label}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="premium-banner" style="background: linear-gradient(135deg, var(--selfcare), #9B7FA0);" onclick="showToast('Atme tief ein... und langsam aus...')">
+            <div class="premium-banner-title">Notfall Selfcare</div>
+            <div class="premium-banner-text">Brauchst du gerade einen Moment fuer dich?</div>
+            <div class="premium-badge"><span class="material-symbols-outlined" style="font-size: 18px;">spa</span>Jetzt durchatmen</div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Mini Achtsamkeit</h2>
+              <span class="section-link" onclick="render()">Neu laden</span>
+            </div>
+            <div class="workout-card" onclick="showToast('${exercise.title} gestartet!')">
+              <div class="workout-header">
+                <div class="workout-title">${exercise.title}</div>
+                <span class="workout-badge planned">${exercise.duration}</span>
+              </div>
+              <div class="workout-stats">
+                <div class="workout-stat"><span class="material-symbols-outlined">${exercise.icon}</span>${exercise.desc}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Journal Prompt</h2>
+              <span class="section-link" onclick="render()">Anderer Prompt</span>
+            </div>
+            <div style="padding: 20px; background: var(--selfcare-bg); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 18px; font-style: italic; color: var(--charcoal); line-height: 1.5;">
+              ${prompt}
+            </div>
+            <textarea style="width: 100%; margin-top: 12px; padding: 14px; border: 1.5px solid var(--sand); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; min-height: 100px; resize: vertical; background: var(--warmwhite);" placeholder="Schreibe hier deine Gedanken..."></textarea>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Zyklustracker</h2>
+            </div>
+            <div style="background: var(--warmwhite); border: 1.5px solid var(--sand); border-radius: var(--radius-md); padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-weight: 600;">Tag ${cycleDay} von ${cycleLength}</span>
+                <span style="font-size: 13px; color: var(--selfcare); font-weight: 600;">${MOCK_DATA.selfcare.symptoms.join(', ')}</span>
+              </div>
+              <div style="height: 8px; background: var(--sand); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                <div style="height: 100%; width: ${cycleProgress}%; background: var(--selfcare); border-radius: 4px;"></div>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                ${['Kopfschmerzen', 'Muedigkeit', 'Energie hoch', 'Gute Stimmung', 'Kraempfe', 'Heisshunger'].map(s => `
+                  <button class="option-btn ${MOCK_DATA.selfcare.symptoms.includes(s) ? 'selected' : ''}" style="font-size: 12px; padding: 6px 12px;" onclick="toggleSymptom('${s}')">${s}</button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2 class="section-title">Gewohnheiten</h2>
+              <span class="section-link" onclick="navigate('habits')">Alle ansehen</span>
+            </div>
+            <div class="habit-list" style="padding: 0;">
+              ${MOCK_DATA.habits.slice(0, 3).map(h => `
+                <div class="habit-card ${h.completedToday ? 'completed-today' : ''}">
+                  <div class="habit-header">
+                    <div class="habit-icon" style="background: ${h.color}"><span class="material-symbols-outlined">${h.icon}</span></div>
+                    <div class="habit-info">
+                      <div class="habit-name">${h.name}</div>
+                      <div class="habit-streak"><span class="material-symbols-outlined">local_fire_department</span>${h.streak} Tage</div>
+                    </div>
+                    <button class="habit-check-btn ${h.completedToday ? 'checked' : ''}" onclick="toggleHabit(${h.id})">
+                      <span class="material-symbols-outlined">check</span>
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // PREMIUM SCREEN
+    // ══════════════════════════════════════════════════════════════
+    function renderPremiumScreen() {
+      return `
+        <div class="screen active">
+          <header class="detail-header">
+            <button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h1>Premium</h1>
+          </header>
+
+          <div style="text-align: center; padding: 40px 20px 20px;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--lotus-light), var(--lotus)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              <span class="material-symbols-outlined" style="font-size: 40px; color: white;">workspace_premium</span>
+            </div>
+            <h2 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 4px;">Soothe Premium</h2>
+            <p style="color: var(--charcoal-light); font-size: 15px;">Entfalte dein volles Potenzial</p>
+          </div>
+
+          <div class="section">
+            <ul class="premium-modal-features">
+              <li><span class="material-symbols-outlined">restaurant</span>Alle 300+ Rezepte</li>
+              <li><span class="material-symbols-outlined">calendar_month</span>Meal Planner mit Wochenplanung</li>
+              <li><span class="material-symbols-outlined">shopping_cart</span>Automatische Einkaufsliste</li>
+              <li><span class="material-symbols-outlined">all_inclusive</span>Unbegrenzte Gewohnheiten</li>
+              <li><span class="material-symbols-outlined">fitness_center</span>Workout-Tracking</li>
+              <li><span class="material-symbols-outlined">monitor_weight</span>Gewichts-Tracking mit Verlauf</li>
+              <li><span class="material-symbols-outlined">download</span>Daten als CSV/PDF exportieren</li>
+              <li><span class="material-symbols-outlined">block</span>Keine Werbung</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <div class="premium-price-cards">
+              <div class="premium-price-card" onclick="selectPricing(this)">
+                <div class="premium-price-amount">4,99 &euro;</div>
+                <div class="premium-price-period">pro Monat</div>
+              </div>
+              <div class="premium-price-card selected popular" onclick="selectPricing(this)">
+                <div class="premium-price-amount">39,99 &euro;</div>
+                <div class="premium-price-period">pro Jahr</div>
+                <div class="premium-price-save">33% sparen</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <button class="btn btn-primary" style="width: 100%;" onclick="showToast('Premium aktiviert! Willkommen!'); createConfetti(); setTimeout(() => navigate('home'), 1500);">
+              <span class="material-symbols-outlined">workspace_premium</span>
+              Jetzt Premium werden
+            </button>
+            <p style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--charcoal-light);">7 Tage kostenlos testen. Jederzeit kuendbar.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // ══════════════════════════════════════════════════════════════
+    function getGreeting() {
+      const hour = new Date().getHours();
+      if (hour < 12) return 'Guten Morgen';
+      if (hour < 18) return 'Guten Tag';
+      return 'Guten Abend';
+    }
+
+    function formatDate(date) {
+      const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      return `${days[date.getDay()]}, ${date.getDate()}. ${months[date.getMonth()]}`;
+    }
+
+    function buildSteps() {
+      state.activeSteps = ['welcome', 'pillars'];
+      PILLAR_ORDER.forEach(id => { if (state.activePillars.has(id)) state.activeSteps.push(id); });
+    }
+
+    function togglePillar(el) { el.classList.toggle('selected'); }
+    function selectOption(el) { el.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); }
+    function toggleOption(el) { el.classList.toggle('selected'); }
+    function updateSlider(id, value, suffix, format = false) { document.getElementById(id + 'Value').textContent = (format ? Number(value).toLocaleString('de-DE') : value) + suffix; }
+    function addChild() { const list = document.getElementById('childrenList'); const div = document.createElement('div'); div.className = 'child-card'; div.innerHTML = `<input type="text" placeholder="Name"><input type="number" placeholder="Alter" min="0" max="25"><button class="remove-child" onclick="removeChild(this)"><span class="material-symbols-outlined">close</span></button>`; list.appendChild(div); }
+    function removeChild(btn) { btn.parentElement.remove(); }
+
+    function nextStep() {
+      const step = STEPS[state.activeSteps[state.currentStep]];
+      if (step.onNext && step.onNext() === false) return;
+      if (state.currentStep < state.activeSteps.length - 1) { state.currentStep++; render(); }
+    }
+
+    function prevStep() {
+      if (state.currentStep > 0) { state.currentStep--; render(); }
+    }
+
+    function finishOnboarding() {
+      const step = STEPS[state.activeSteps[state.currentStep]];
+      if (step.onNext) step.onNext();
+      state.currentScreen = 'home';
+      render();
+      createConfetti();
+    }
+
+    function navigate(screen) {
+      state.currentScreen = screen;
+      render();
+    }
+
+    function openAddPillarModal() {
+      document.getElementById('addPillarModal').classList.add('active');
+    }
+
+    function closeAddPillarModal() {
+      document.getElementById('addPillarModal').classList.remove('active');
+    }
+
+    function addPillar(id) {
+      state.activePillars.add(id);
+      closeAddPillarModal();
+      render();
+      createConfetti();
+    }
+
+    function toggleTask(id) {
+      const task = state.tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        render();
+        if (task.completed) createConfetti();
+      }
+    }
+
+    function toggleWorkout(id) {
+      const workout = state.workouts.find(w => w.id === id);
+      if (workout) {
+        workout.completed = !workout.completed;
+        render();
+        if (workout.completed) createConfetti();
+      }
+    }
+
+    function selectDate(day) {
+      state.selectedDate = day;
+      render();
+    }
+
+    function setWater(glasses) {
+      state.waterGlasses = glasses;
+      render();
+    }
+
+    function openRecipe(id) {
+      state.selectedRecipe = id;
+      navigate('recipe');
+    }
+
+    function markNotificationRead(id) {
+      const notif = state.notifications.find(n => n.id === id);
+      if (notif) notif.unread = false;
+      render();
+    }
+
+    function markAllRead() {
+      state.notifications.forEach(n => n.unread = false);
+      render();
+    }
+
+    function toggleShoppingItem(id) {
+      const item = MOCK_DATA.shoppingList.find(i => i.id === id);
+      if (item) { item.checked = !item.checked; render(); }
+    }
+
+    function toggleHabit(id) {
+      const habit = MOCK_DATA.habits.find(h => h.id === id);
+      if (habit) {
+        habit.completedToday = !habit.completedToday;
+        if (habit.completedToday) { habit.streak++; createConfetti(); }
+        else { habit.streak = Math.max(0, habit.streak - 1); }
+        render();
+      }
+    }
+
+    function selectMood(value) {
+      state.selectedMood = value;
+      render();
+      showToast('Stimmung gespeichert!');
+    }
+
+    function adjustWeight(delta) {
+      const input = document.getElementById('weightInput');
+      if (input) { input.value = (parseFloat(input.value) + delta).toFixed(1); }
+    }
+
+    function selectPricing(el) {
+      document.querySelectorAll('.premium-price-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function toggleSymptom(symptom) {
+      const idx = MOCK_DATA.selfcare.symptoms.indexOf(symptom);
+      if (idx > -1) { MOCK_DATA.selfcare.symptoms.splice(idx, 1); }
+      else { MOCK_DATA.selfcare.symptoms.push(symptom); }
+      render();
+    }
+
+    function restartOnboarding() {
+      state.currentStep = 0;
+      state.activePillars.clear();
+      state.activeSteps = ['welcome', 'pillars'];
+      state.currentScreen = 'onboarding';
+      render();
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: var(--charcoal); color: white; padding: 12px 24px; border-radius: 50px; font-size: 14px; z-index: 500; animation: fadeIn 0.3s ease;';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    function createConfetti() {
+      const colors = ['#C9A88C', '#9CB8A8', '#C9A87C', '#A8B4C9', '#D4A5A5', '#A8B89D'];
+      for (let i = 0; i < 50; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        c.style.animationDelay = Math.random() * 0.5 + 's';
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3500);
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
+  </script>
+</body>
+</html>
