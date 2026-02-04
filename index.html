@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Soothe – Life, gently organized</title>
+  <title>eazly – Life, gently organized</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
@@ -731,7 +731,7 @@
     // STEP TEMPLATES
     // ══════════════════════════════════════════════════════════════
     const STEPS = {
-      welcome: { id: 'welcome', icon: 'waving_hand', iconClass: '', title: 'Willkommen bei Soothe', subtitle: 'Lass uns dein Leben sanft organisieren.<br>Wie dürfen wir dich nennen?',
+      welcome: { id: 'welcome', icon: 'waving_hand', iconClass: '', title: 'Willkommen bei eazly', subtitle: 'Lass uns dein Leben sanft organisieren.<br>Wie duerfen wir dich nennen?',
         html: () => `<div class="form-group"><label class="form-label">Dein Name</label><input type="text" class="form-input" id="userName" placeholder="z.B. Sarah" value="${state.userName}"></div>`,
         onNext: () => { state.userName = document.getElementById('userName').value || 'Sarah'; }
       },
@@ -785,16 +785,19 @@
         <div class="onboarding">
           <div class="onboarding-header">
             <svg class="onboarding-logo" viewBox="0 0 100 100" fill="none">
-              <path d="M50 15 Q55 35, 50 55 Q45 35, 50 15" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M35 25 Q45 40, 42 58 Q32 42, 35 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M65 25 Q55 40, 58 58 Q68 42, 65 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M22 35 Q35 48, 35 65 Q20 50, 22 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M78 35 Q65 48, 65 65 Q80 50, 78 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M12 50 Q28 55, 30 72 Q15 60, 12 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M88 50 Q72 55, 70 72 Q85 60, 88 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
-              <path d="M25 75 Q50 85, 75 75" stroke="#C9A88C" stroke-width="1.5" fill="none"/>
+              <defs>
+                <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#C9A88C"/>
+                  <stop offset="100%" stop-color="#9CB8A8"/>
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="44" stroke="url(#logoGrad)" stroke-width="3" fill="none"/>
+              <path d="M32 42 C32 32, 42 24, 52 24 C62 24, 70 30, 70 38 C70 44, 66 48, 58 50 L32 50" stroke="url(#logoGrad)" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <path d="M32 50 C32 62, 42 72, 54 72 C64 72, 70 66, 70 60" stroke="url(#logoGrad)" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="72" cy="60" r="3" fill="#9CB8A8"/>
+              <path d="M20 78 Q50 88, 80 78" stroke="#C9A88C" stroke-width="1.5" fill="none" opacity="0.4"/>
             </svg>
-            <div class="onboarding-brand">soothe</div>
+            <div class="onboarding-brand">eazly</div>
           </div>
           <div class="onboarding-progress">
             ${state.activeSteps.map((_, i) => `<div class="progress-dot ${i < state.currentStep ? 'completed' : ''} ${i === state.currentStep ? 'active' : ''}"></div>`).join('')}
@@ -899,8 +902,8 @@
           <header class="app-header">
             <div class="header-top">
               <div class="header-logo">
-                <svg viewBox="0 0 100 100" fill="none"><path d="M50 15 Q55 35, 50 55 Q45 35, 50 15" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M35 25 Q45 40, 42 58 Q32 42, 35 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M65 25 Q55 40, 58 58 Q68 42, 65 25" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M22 35 Q35 48, 35 65 Q20 50, 22 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M78 35 Q65 48, 65 65 Q80 50, 78 35" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M12 50 Q28 55, 30 72 Q15 60, 12 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M88 50 Q72 55, 70 72 Q85 60, 88 50" stroke="#C9A88C" stroke-width="1.5" fill="none"/><path d="M25 75 Q50 85, 75 75" stroke="#C9A88C" stroke-width="1.5" fill="none"/></svg>
-                <span>soothe</span>
+                <svg viewBox="0 0 100 100" fill="none"><defs><linearGradient id="hLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#C9A88C"/><stop offset="100%" stop-color="#9CB8A8"/></linearGradient></defs><circle cx="50" cy="50" r="44" stroke="url(#hLogoGrad)" stroke-width="3" fill="none"/><path d="M32 42 C32 32, 42 24, 52 24 C62 24, 70 30, 70 38 C70 44, 66 48, 58 50 L32 50" stroke="url(#hLogoGrad)" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M32 50 C32 62, 42 72, 54 72 C64 72, 70 66, 70 60" stroke="url(#hLogoGrad)" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="72" cy="60" r="3" fill="#9CB8A8"/></svg>
+                <span>eazly</span>
               </div>
               <div class="header-actions">
                 <button class="header-btn" onclick="navigate('notifications')">
@@ -921,7 +924,7 @@
           </div>
           
           <div class="premium-banner" onclick="navigate('premium')">
-            <div class="premium-banner-title">Soothe Premium</div>
+            <div class="premium-banner-title">eazly Premium</div>
             <div class="premium-banner-text">300+ Rezepte, Meal Planner, Gewichts-Tracking & mehr</div>
             <div class="premium-badge"><span class="material-symbols-outlined" style="font-size: 16px;">workspace_premium</span>7 Tage gratis testen</div>
           </div>
@@ -1972,7 +1975,7 @@
             <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--lotus-light), var(--lotus)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
               <span class="material-symbols-outlined" style="font-size: 40px; color: white;">workspace_premium</span>
             </div>
-            <h2 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 4px;">Soothe Premium</h2>
+            <h2 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 4px;">eazly Premium</h2>
             <p style="color: var(--charcoal-light); font-size: 15px;">Entfalte dein volles Potenzial</p>
           </div>
 
