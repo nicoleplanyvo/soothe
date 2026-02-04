@@ -623,13 +623,15 @@
       caloriesGoal: 1800,
       waterGlasses: 0,
       weeklyWorkouts: [0,0,0,0,0,0,0],
-      selfcare: { mood: null, cycleDay: 1, cycleLength: 28, symptoms: [] }
+      selfcare: { mood: null, periodStart: null, cycleLength: 28, cycleLog: {} }
     };
 
     let appData = loadData() || JSON.parse(JSON.stringify(DEFAULT_DATA, (k, v) => v instanceof Set ? [] : v));
     if (!(appData.activePillars instanceof Set)) appData.activePillars = new Set(appData.activePillars || []);
     if (!appData.trackedMeals) appData.trackedMeals = [];
-    if (!appData.selfcare) appData.selfcare = { mood: null, cycleDay: 1, cycleLength: 28, symptoms: [] };
+    if (!appData.selfcare) appData.selfcare = { mood: null, periodStart: null, cycleLength: 28, cycleLog: {} };
+    if (!appData.selfcare.cycleLog) appData.selfcare.cycleLog = {};
+    if (appData.selfcare.symptoms) { delete appData.selfcare.symptoms; delete appData.selfcare.cycleDay; }
     if (!appData.budget) appData.budget = { total: 0, categories: [] };
     if (!appData.calendarEvents) appData.calendarEvents = [];
 
@@ -1142,14 +1144,92 @@
       const moods = [{icon:'bedtime',label:'Muede',value:1,color:'#A8B4C9'},{icon:'sentiment_dissatisfied',label:'Traurig',value:2,color:'#D4A5A5'},{icon:'sentiment_neutral',label:'Okay',value:3,color:'#C9A87C'},{icon:'sentiment_satisfied',label:'Gut',value:4,color:'#9CB8A8'},{icon:'sentiment_very_satisfied',label:'Super',value:5,color:'#7CB87C'}];
       const prompt = APP_CONTENT.journalPrompts[Math.floor(Math.random()*APP_CONTENT.journalPrompts.length)];
       const exercise = APP_CONTENT.miniExercises[Math.floor(Math.random()*APP_CONTENT.miniExercises.length)];
-      const sc = appData.selfcare || {cycleDay:1,cycleLength:28,symptoms:[]};
-      const cycleProgress = Math.round((sc.cycleDay/sc.cycleLength)*100);
+      const sc = appData.selfcare;
+      // Zyklus-Berechnung
+      const today = new Date(); const todayStr = today.toISOString().split('T')[0];
+      let cycleDay = 0; let cyclePhase = ''; let nextPeriod = '';
+      if (sc.periodStart) {
+        const ps = new Date(sc.periodStart);
+        const diffMs = today - ps; const diffDays = Math.floor(diffMs / 86400000);
+        cycleDay = (diffDays % (sc.cycleLength || 28)) + 1;
+        if (cycleDay <= 5) cyclePhase = 'Menstruation';
+        else if (cycleDay <= 13) cyclePhase = 'Follikelphase';
+        else if (cycleDay <= 16) cyclePhase = 'Eisprung';
+        else cyclePhase = 'Lutealphase';
+        const daysLeft = (sc.cycleLength || 28) - cycleDay;
+        nextPeriod = daysLeft <= 0 ? 'Faellig' : 'in ' + daysLeft + ' Tagen';
+      }
+      const todayLog = (sc.cycleLog && sc.cycleLog[todayStr]) || [];
+      const cycleProgress = cycleDay ? Math.round((cycleDay / (sc.cycleLength || 28)) * 100) : 0;
+      // Symptom-Kategorien
+      const symptomCategories = [
+        { title: 'Blutung', icon: 'water_drop', items: ['Leicht','Mittel','Stark','Schmierblutung'] },
+        { title: 'Ausfluss', icon: 'opacity', items: ['Klar','Cremig','Waessrig','Klebrig'] },
+        { title: 'Schmerzen', icon: 'healing', items: ['Kopfschmerzen','Bauchschmerzen','Unterleibskraempfe','Rueckenschmerzen','Brustspannen'] },
+        { title: 'Stimmung', icon: 'mood', items: ['Gluecklich','Traurig','Gereizt','Aengstlich','Energiegeladen','Erschoepft','Sensibel'] },
+        { title: 'Koerper', icon: 'accessibility_new', items: ['Blaehungen','Uebelkeit','Heisshunger','Appetitlos','Schlafprobleme','Hautunreinheiten'] },
+        { title: 'Intimität', icon: 'favorite', items: ['Lustempfinden hoch','Lustempfinden niedrig','Geschlechtsverkehr'] }
+      ];
+
       return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Selfcare</h1></header>
         <div class="section" style="padding-top:20px;"><div class="section-header"><h2 class="section-title">Wie fuehlst du dich?</h2></div><div style="display:flex;justify-content:space-between;gap:8px;">${moods.map(m => `<div onclick="selectMood(${m.value})" style="flex:1;text-align:center;padding:14px 4px;background:${state.selectedMood===m.value?'var(--selfcare-bg)':'var(--cream)'};border:2px solid ${state.selectedMood===m.value?'var(--selfcare)':'transparent'};border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;"><span class="material-symbols-outlined" style="font-size:32px;color:${state.selectedMood===m.value?m.color:'var(--charcoal-light)'};">${m.icon}</span><div style="font-size:11px;color:var(--charcoal-light);margin-top:4px;">${m.label}</div></div>`).join('')}</div></div>
+
+        <div class="section"><div class="section-header"><h2 class="section-title">Zyklustracker</h2></div>
+          <div style="background:var(--warmwhite);border:1.5px solid var(--sand);border-radius:var(--radius-md);padding:20px;">
+            ${sc.periodStart ? `
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div><div style="font-size:24px;font-weight:700;color:var(--selfcare);">Tag ${cycleDay}</div><div style="font-size:13px;color:var(--charcoal-light);">von ${sc.cycleLength} Tagen</div></div>
+                <div style="text-align:right;"><div style="font-size:14px;font-weight:600;color:var(--charcoal);">${cyclePhase}</div><div style="font-size:12px;color:var(--charcoal-light);">Naechste Periode: ${nextPeriod}</div></div>
+              </div>
+              <div style="height:10px;background:var(--sand);border-radius:5px;overflow:hidden;margin-bottom:8px;position:relative;">
+                <div style="height:100%;width:${Math.min(100,cycleProgress)}%;border-radius:5px;background:${cycleDay<=5?'var(--danger)':cycleDay<=13?'var(--selfcare)':cycleDay<=16?'var(--warning)':'var(--karriere)'};transition:width 0.3s;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--charcoal-light);margin-bottom:16px;">
+                <span>Menstruation</span><span>Follikel</span><span>Eisprung</span><span>Luteal</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="openPeriodStartModal()"><span class="material-symbols-outlined" style="font-size:18px;">edit_calendar</span>Periode anpassen</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="setCycleNewPeriod()"><span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span>Periode heute</button>
+              </div>
+            ` : `
+              <div style="text-align:center;padding:20px 0;">
+                <span class="material-symbols-outlined" style="font-size:48px;color:var(--selfcare);margin-bottom:12px;">cycle</span>
+                <h3 style="font-family:var(--font-display);font-size:20px;margin-bottom:8px;">Zyklustracking starten</h3>
+                <p style="color:var(--charcoal-light);font-size:14px;margin-bottom:20px;">Wann hat deine letzte Periode begonnen?</p>
+                <button class="btn btn-primary" onclick="openPeriodStartModal()"><span class="material-symbols-outlined">edit_calendar</span>Periodenstart eingeben</button>
+              </div>
+            `}
+          </div>
+        </div>
+
+        ${sc.periodStart ? `
+        <div class="section"><div class="section-header"><h2 class="section-title">Heutige Symptome</h2><span style="font-size:12px;color:var(--charcoal-light);">${todayLog.length} erfasst</span></div>
+          ${symptomCategories.map(cat => `
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <span class="material-symbols-outlined" style="font-size:20px;color:var(--selfcare);">${cat.icon}</span>
+                <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--charcoal-light);">${cat.title}</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                ${cat.items.map(s => `<button class="option-btn ${todayLog.includes(s)?'selected':''}" style="font-size:12px;padding:8px 14px;" onclick="toggleCycleSymptom('${s}')">${s}</button>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${Object.keys(sc.cycleLog).length > 0 ? `
+        <div class="section"><div class="section-header"><h2 class="section-title">Letzte Eintraege</h2></div>
+          ${Object.entries(sc.cycleLog).sort((a,b) => b[0].localeCompare(a[0])).slice(0,5).map(([date, syms]) => {
+            if (!syms.length) return '';
+            const d = new Date(date); const dayStr = ('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.';
+            return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--sand);"><div style="min-width:50px;font-weight:600;font-size:13px;color:var(--charcoal);">${dayStr}</div><div style="display:flex;flex-wrap:wrap;gap:6px;">${syms.map(s => `<span style="font-size:11px;padding:4px 10px;background:var(--selfcare-bg);border-radius:20px;color:var(--selfcare);font-weight:500;">${s}</span>`).join('')}</div></div>`;
+          }).join('')}
+        </div>` : ''}
+        ` : ''}
+
         <div class="premium-banner" style="background:linear-gradient(135deg,var(--selfcare),#9B7FA0);" onclick="showToast('Atme tief ein... und langsam aus...')"><div class="premium-banner-title">Notfall Selfcare</div><div class="premium-banner-text">Brauchst du gerade einen Moment fuer dich?</div><div class="premium-badge"><span class="material-symbols-outlined" style="font-size:18px;">spa</span>Jetzt durchatmen</div></div>
         <div class="section"><div class="section-header"><h2 class="section-title">Mini Achtsamkeit</h2><span class="section-link" onclick="render()">Neu laden</span></div><div class="workout-card" onclick="showToast('${exercise.title} gestartet!')"><div class="workout-header"><div class="workout-title">${exercise.title}</div><span class="workout-badge planned">${exercise.duration}</span></div><div class="workout-stats"><div class="workout-stat"><span class="material-symbols-outlined">${exercise.icon}</span>${exercise.desc}</div></div></div></div>
         <div class="section"><div class="section-header"><h2 class="section-title">Journal Prompt</h2><span class="section-link" onclick="render()">Anderer Prompt</span></div><div style="padding:20px;background:var(--selfcare-bg);border-radius:var(--radius-md);font-family:var(--font-display);font-size:18px;font-style:italic;color:var(--charcoal);line-height:1.5;">${prompt}</div><textarea style="width:100%;margin-top:12px;padding:14px;border:1.5px solid var(--sand);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;min-height:100px;resize:vertical;background:var(--warmwhite);" placeholder="Schreibe hier deine Gedanken..."></textarea></div>
-        <div class="section"><div class="section-header"><h2 class="section-title">Zyklustracker</h2></div><div style="background:var(--warmwhite);border:1.5px solid var(--sand);border-radius:var(--radius-md);padding:16px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-weight:600;">Tag ${sc.cycleDay} von ${sc.cycleLength}</span><span style="font-size:13px;color:var(--selfcare);font-weight:600;">${(sc.symptoms||[]).join(', ')}</span></div><div style="height:8px;background:var(--sand);border-radius:4px;overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:${cycleProgress}%;background:var(--selfcare);border-radius:4px;"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;">${['Kopfschmerzen','Muedigkeit','Energie hoch','Gute Stimmung','Kraempfe','Heisshunger'].map(s => `<button class="option-btn ${(sc.symptoms||[]).includes(s)?'selected':''}" style="font-size:12px;padding:6px 12px;" onclick="toggleSymptom('${s}')">${s}</button>`).join('')}</div></div></div>
         <div class="section"><div class="section-header"><h2 class="section-title">Gewohnheiten</h2><span class="section-link" onclick="navigate('habits')">Alle ansehen</span></div>
           ${appData.habits.length ? `<div class="habit-list" style="padding:0;">${appData.habits.slice(0,3).map(h => `<div class="habit-card ${h.completedToday?'completed-today':''}"><div class="habit-header"><div class="habit-icon" style="background:${h.color}"><span class="material-symbols-outlined">${h.icon}</span></div><div class="habit-info"><div class="habit-name">${h.name}</div><div class="habit-streak"><span class="material-symbols-outlined">local_fire_department</span>${h.streak} Tage</div></div><button class="habit-check-btn ${h.completedToday?'checked':''}" onclick="toggleHabit(${h.id})"><span class="material-symbols-outlined">check</span></button></div></div>`).join('')}</div>` : `<p style="color:var(--charcoal-light);text-align:center;padding:20px;cursor:pointer;" onclick="openHabitModal()">Erstelle deine erste Gewohnheit</p>`}
         </div></div>`;
@@ -1197,7 +1277,29 @@
     function adjustWeight(delta) { const input = document.getElementById('weightInput'); if (input) input.value = (parseFloat(input.value) + delta).toFixed(1); }
     function saveWeight() { const input = document.getElementById('weightInput'); if (!input) return; const w = parseFloat(input.value); if (isNaN(w)) return; const today = new Date(); const dateStr = ('0'+today.getDate()).slice(-2)+'.'+('0'+(today.getMonth()+1)).slice(-2); appData.weightHistory.push({ date: dateStr, weight: w }); saveData(); render(); showToast('Gewicht gespeichert!'); }
     function selectPricing(el) { document.querySelectorAll('.premium-price-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); }
-    function toggleSymptom(symptom) { if (!appData.selfcare.symptoms) appData.selfcare.symptoms = []; const idx = appData.selfcare.symptoms.indexOf(symptom); if (idx > -1) appData.selfcare.symptoms.splice(idx,1); else appData.selfcare.symptoms.push(symptom); saveData(); render(); }
+    function toggleCycleSymptom(symptom) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (!appData.selfcare.cycleLog) appData.selfcare.cycleLog = {};
+      if (!appData.selfcare.cycleLog[todayStr]) appData.selfcare.cycleLog[todayStr] = [];
+      const log = appData.selfcare.cycleLog[todayStr];
+      const idx = log.indexOf(symptom);
+      if (idx > -1) log.splice(idx, 1); else log.push(symptom);
+      saveData(); render();
+    }
+    function openPeriodStartModal() {
+      openFormModal({ title: 'Periodenstart', fields: [
+        { key: 'periodStart', label: 'Erster Tag der letzten Periode', type: 'date', value: appData.selfcare.periodStart || new Date().toISOString().split('T')[0] },
+        { key: 'cycleLength', label: 'Zykluslaenge (Tage)', type: 'number', placeholder: '28', value: appData.selfcare.cycleLength || 28, min: 20, step: 1 }
+      ], onSave: (d) => {
+        appData.selfcare.periodStart = d.periodStart;
+        appData.selfcare.cycleLength = d.cycleLength || 28;
+        showToast('Zyklusdaten gespeichert!');
+      }});
+    }
+    function setCycleNewPeriod() {
+      appData.selfcare.periodStart = new Date().toISOString().split('T')[0];
+      saveData(); render(); showToast('Neuer Zyklus gestartet!');
+    }
     function restartOnboarding() { appData.onboardingDone = false; state.currentStep = 0; state.activePillars.clear(); state.activeSteps = ['welcome', 'pillars']; state.currentScreen = 'onboarding'; saveData(); render(); }
     function showToast(message) { const t = document.createElement('div'); t.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:white;padding:12px 24px;border-radius:50px;font-size:14px;z-index:500;animation:fadeIn 0.3s ease;'; t.textContent = message; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
     function createConfetti() { const colors = ['#C9A88C','#9CB8A8','#C9A87C','#A8B4C9','#D4A5A5','#A8B89D']; for (let i=0;i<50;i++) { const c = document.createElement('div'); c.className='confetti'; c.style.left=Math.random()*100+'vw'; c.style.background=colors[Math.floor(Math.random()*colors.length)]; c.style.animationDuration=(Math.random()*2+2)+'s'; c.style.animationDelay=Math.random()*0.5+'s'; c.style.borderRadius=Math.random()>0.5?'50%':'0'; document.body.appendChild(c); setTimeout(()=>c.remove(),3500); } }
