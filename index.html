@@ -1121,13 +1121,17 @@
       if (!appData.mealPlan) appData.mealPlan = {0:{},1:{},2:{},3:{},4:{},5:{},6:{}};
       const plan = appData.mealPlan[sd] || {};
       const slots = [{key:'fruehstueck',label:'Fruehstueck',icon:'egg_alt'},{key:'mittag',label:'Mittagessen',icon:'lunch_dining'},{key:'abend',label:'Abendessen',icon:'dinner_dining'},{key:'snack',label:'Snack',icon:'cookie'}];
-      const totalKcal = slots.reduce((s,sl) => s + (plan[sl.key]?plan[sl.key].kcal:0), 0);
+      const totalKcal = slots.reduce((s,sl) => s + (plan[sl.key]?plan[sl.key].kcal||0:0), 0);
+      const totalP = slots.reduce((s,sl) => s + (plan[sl.key]?plan[sl.key].protein||0:0), 0);
+      const totalC = slots.reduce((s,sl) => s + (plan[sl.key]?plan[sl.key].carbs||0:0), 0);
+      const totalF = slots.reduce((s,sl) => s + (plan[sl.key]?plan[sl.key].fat||0:0), 0);
+      const filledSlots = slots.filter(sl => plan[sl.key]).length;
       return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('ernaehrung')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Meal Planner</h1><button class="header-btn" onclick="navigate('shoppinglist')"><span class="material-symbols-outlined">shopping_cart</span></button></header>
         <div class="meal-day-tabs">${dayNames.map((d,i) => `<div class="meal-day-tab ${i===sd?'active':''}" onclick="state.mealPlanDay=${i};render();"><div class="day-name">${d}</div><div class="day-num">${new Date().getDate()-new Date().getDay()+1+i}</div></div>`).join('')}</div>
-        <div class="meal-summary"><div class="meal-summary-item"><div class="meal-summary-value">${totalKcal}</div><div class="meal-summary-label">Kalorien</div></div></div>
+        <div class="meal-summary"><div class="meal-summary-item"><div class="meal-summary-value">${totalKcal}</div><div class="meal-summary-label">kcal</div></div><div class="meal-summary-item"><div class="meal-summary-value">${totalP}g</div><div class="meal-summary-label">Protein</div></div><div class="meal-summary-item"><div class="meal-summary-value">${totalC}g</div><div class="meal-summary-label">Karbs</div></div><div class="meal-summary-item"><div class="meal-summary-value">${totalF}g</div><div class="meal-summary-label">Fett</div></div></div>
         ${slots.map(s => { const meal = plan[s.key];
-          if (meal) return `<div class="meal-slot" onclick="openRecipe(${meal.recipeId})"><div class="meal-slot-header"><span class="meal-slot-label">${s.label}</span><span class="meal-slot-kcal">${meal.kcal} kcal</span></div><div class="meal-slot-content"><div class="meal-slot-icon"><span class="material-symbols-outlined">${s.icon}</span></div><div class="meal-slot-info"><div class="meal-slot-title">${meal.title}</div><div class="meal-slot-meta">Tippen fuer Details</div></div><button onclick="event.stopPropagation();appData.mealPlan[${sd}]['${s.key}']=null;saveData();render();" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">close</span></button></div></div>`;
-          return `<div class="meal-slot empty" onclick="openMealPlanSlotModal(${sd},'${s.key}')"><div class="meal-slot-header"><span class="meal-slot-label">${s.label}</span></div><div class="meal-slot-content"><div class="meal-slot-icon"><span class="material-symbols-outlined">add</span></div><div class="meal-slot-info"><div class="meal-slot-title">Mahlzeit hinzufuegen</div><div class="meal-slot-meta">Aus Rezepten waehlen</div></div></div></div>`;
+          if (meal) return `<div class="meal-slot" ${meal.recipeId ? 'onclick="openRecipe('+meal.recipeId+')"' : ''}><div class="meal-slot-header"><span class="meal-slot-label">${s.label}</span><span class="meal-slot-kcal">${meal.kcal} kcal</span></div><div class="meal-slot-content"><div class="meal-slot-icon"><span class="material-symbols-outlined">${s.icon}</span></div><div class="meal-slot-info"><div class="meal-slot-title">${meal.title}</div><div class="meal-slot-meta">${meal.recipeId ? 'Tippen fuer Details' : (meal.protein ? meal.protein+'g P / '+meal.carbs+'g K / '+meal.fat+'g F' : 'Eigene Mahlzeit')}</div></div><button onclick="event.stopPropagation();appData.mealPlan[${sd}]['${s.key}']=null;saveData();render();" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">close</span></button></div></div>`;
+          return `<div class="meal-slot empty" onclick="openMealPlanSlotModal(${sd},'${s.key}')"><div class="meal-slot-header"><span class="meal-slot-label">${s.label}</span></div><div class="meal-slot-content"><div class="meal-slot-icon"><span class="material-symbols-outlined">add</span></div><div class="meal-slot-info"><div class="meal-slot-title">Mahlzeit hinzufuegen</div><div class="meal-slot-meta">Rezept oder eigene Eingabe</div></div></div></div>`;
         }).join('')}</div>`;
     }
 
@@ -1392,17 +1396,75 @@
     ], onSave: (d) => { appData.shoppingList.push({ id: nextId(appData.shoppingList), text: d.text||'Artikel', amount: d.amount||'', category: d.category||'Sonstiges', checked: false }); showToast('Artikel hinzugefuegt!'); } }); }
 
     function openMealPlanSlotModal(day, slot) {
+      const slotLabels = { fruehstueck: 'Fruehstueck', mittag: 'Mittagessen', abend: 'Abendessen', snack: 'Snack' };
       const recipes = APP_CONTENT.recipes;
-      openFormModal({ title: 'Rezept waehlen', fields: [
-        { key: 'recipeId', label: 'Rezept', type: 'select', options: recipes.map(r => ({value: String(r.id), label: r.title + ' (' + r.calories + ' kcal)'})) }
-      ], onSave: (d) => {
-        const r = recipes.find(r => r.id === parseInt(d.recipeId));
-        if (r) {
-          if (!appData.mealPlan[day]) appData.mealPlan[day] = {};
-          appData.mealPlan[day][slot] = { recipeId: r.id, title: r.title, kcal: r.calories };
-          showToast(r.title + ' eingeplant!');
-        }
-      }});
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay active';
+      overlay.id = 'mealPlanModal';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      overlay.innerHTML = `<div class="modal" style="max-height:90vh;overflow-y:auto;">
+        <div class="modal-header"><h2 class="modal-title">${slotLabels[slot] || 'Mahlzeit'} hinzufuegen</h2><button class="modal-close" onclick="document.getElementById('mealPlanModal').remove()"><span class="material-symbols-outlined">close</span></button></div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button class="option-btn selected" id="mpTab_custom" onclick="switchMealPlanTab('custom')" style="flex:1;padding:10px;"><span class="material-symbols-outlined" style="font-size:18px;">edit</span> Eigene Eingabe</button>
+          <button class="option-btn" id="mpTab_recipe" onclick="switchMealPlanTab('recipe')" style="flex:1;padding:10px;"><span class="material-symbols-outlined" style="font-size:18px;">menu_book</span> Rezept waehlen</button>
+        </div>
+        <div id="mpPane_custom">
+          <div class="form-group"><label class="form-label">Was isst du?</label><input type="text" class="form-input" id="mp_name" placeholder="z.B. Haferflocken mit Banane"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group"><label class="form-label">Kalorien (kcal)</label><input type="number" class="form-input" id="mp_kcal" placeholder="400" min="0"></div>
+            <div class="form-group"><label class="form-label">Protein (g)</label><input type="number" class="form-input" id="mp_protein" placeholder="20" min="0"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group"><label class="form-label">Kohlenhydrate (g)</label><input type="number" class="form-input" id="mp_carbs" placeholder="50" min="0"></div>
+            <div class="form-group"><label class="form-label">Fett (g)</label><input type="number" class="form-input" id="mp_fat" placeholder="15" min="0"></div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('mealPlanModal').remove()">Abbrechen</button><button class="btn btn-primary" onclick="saveCustomMealPlan(${day},'${slot}')">Hinzufuegen</button></div>
+        </div>
+        <div id="mpPane_recipe" style="display:none;">
+          <div class="form-group"><label class="form-label">Rezept auswaehlen</label>
+            ${recipes.map(r => `<div onclick="saveRecipeMealPlan(${day},'${slot}',${r.id})" style="display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:8px;background:var(--cream);border-radius:var(--radius-sm);cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='var(--ernaehrung-bg)'" onmouseout="this.style.background='var(--cream)'">
+              <span class="material-symbols-outlined" style="color:var(--ernaehrung);font-size:24px;">restaurant</span>
+              <div style="flex:1;"><div style="font-weight:600;font-size:14px;">${r.title}</div><div style="font-size:12px;color:var(--charcoal-light);">${r.time} Min | ${r.calories} kcal | P:${r.protein}g K:${r.carbs}g F:${r.fat}g</div></div>
+              <span class="material-symbols-outlined" style="color:var(--charcoal-light);">add_circle</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+      document.body.appendChild(overlay);
+      setTimeout(() => { const f = overlay.querySelector('#mp_name'); if (f) f.focus(); }, 100);
+    }
+
+    function switchMealPlanTab(tab) {
+      document.getElementById('mpTab_custom').classList.toggle('selected', tab === 'custom');
+      document.getElementById('mpTab_recipe').classList.toggle('selected', tab === 'recipe');
+      document.getElementById('mpPane_custom').style.display = tab === 'custom' ? 'block' : 'none';
+      document.getElementById('mpPane_recipe').style.display = tab === 'recipe' ? 'block' : 'none';
+    }
+
+    function saveCustomMealPlan(day, slot) {
+      const name = document.getElementById('mp_name').value.trim();
+      const kcal = parseInt(document.getElementById('mp_kcal').value) || 0;
+      const protein = parseInt(document.getElementById('mp_protein').value) || 0;
+      const carbs = parseInt(document.getElementById('mp_carbs').value) || 0;
+      const fat = parseInt(document.getElementById('mp_fat').value) || 0;
+      if (!name) { showToast('Bitte gib einen Namen ein'); return; }
+      if (!appData.mealPlan[day]) appData.mealPlan[day] = {};
+      appData.mealPlan[day][slot] = { title: name, kcal: kcal, protein: protein, carbs: carbs, fat: fat };
+      saveData();
+      showToast(name + ' eingeplant!');
+      document.getElementById('mealPlanModal').remove();
+      render();
+    }
+
+    function saveRecipeMealPlan(day, slot, recipeId) {
+      const r = APP_CONTENT.recipes.find(r => r.id === recipeId);
+      if (!r) return;
+      if (!appData.mealPlan[day]) appData.mealPlan[day] = {};
+      appData.mealPlan[day][slot] = { recipeId: r.id, title: r.title, kcal: r.calories, protein: r.protein, carbs: r.carbs, fat: r.fat };
+      saveData();
+      showToast(r.title + ' eingeplant!');
+      document.getElementById('mealPlanModal').remove();
+      render();
     }
 
     // ══════════════════════════════════════════════════════════════
