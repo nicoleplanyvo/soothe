@@ -662,6 +662,8 @@
       tasks: [],
       familyEvents: [],
       children: [],
+      familyShoppingList: [],
+      familyMealPlan: { 0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} },
       transactions: [],
       budget: { total: 0, categories: [] },
       notifications: [],
@@ -698,6 +700,9 @@
       mealPlanDay: 0,
       recipeFilter: 'alle',
       recipeSearch: '',
+      familyShopFilter: 'Alle',
+      familyMealDay: 0,
+      selectedChild: 0,
       selectedRecipe: null,
       modalOpen: false
     };
@@ -920,6 +925,10 @@
         selfcare: renderSelfcareDetail,
         karriere: renderKarriereDetail,
         familie: renderFamilieDetail,
+        familycalendar: renderFamilyCalendar,
+        familyshopping: renderFamilyShopping,
+        familymealplan: renderFamilyMealPlan,
+        childdetail: renderChildDetail,
         finanzen: renderFinanzenDetail,
         recipe: renderRecipeDetail,
         recipes: renderRecipesScreen,
@@ -1134,13 +1143,309 @@
     }
 
     function renderFamilieDetail() {
+      const openShopItems = (appData.familyShoppingList || []).filter(i => !i.checked).length;
+      const todayMeals = appData.familyMealPlan ? Object.values(appData.familyMealPlan[new Date().getDay()] || {}).filter(Boolean).length : 0;
       return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('home')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Familie</h1><button class="header-btn" onclick="openFamilyEventModal()"><span class="material-symbols-outlined">add</span></button></header>
         <div class="section" style="padding-top: 20px;"><div class="section-header"><h2 class="section-title">Kinder</h2><span class="section-link" onclick="openChildModal()">Kind hinzufuegen</span></div>
-          ${appData.children.length ? `<div style="display:flex;gap:16px;flex-wrap:wrap;">${appData.children.map(c => `<div style="flex:1;min-width:120px;background:var(--familie-bg);padding:20px;border-radius:var(--radius-md);text-align:center;position:relative;"><button onclick="confirmDelete('${c.name} entfernen?',()=>{appData.children=appData.children.filter(x=>x.name!=='${c.name}')})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">close</span></button><div style="width:48px;height:48px;border-radius:50%;background:${c.color || 'var(--familie)'};display:flex;align-items:center;justify-content:center;margin:0 auto 8px;"><span class="material-symbols-outlined" style="font-size:28px;color:white;">${c.icon || 'face'}</span></div><div style="font-weight:600;">${c.name}</div><div style="font-size:13px;color:var(--charcoal-light);">${c.age} Jahre</div></div>`).join('')}</div>` : `<p style="color:var(--charcoal-light);text-align:center;padding:20px;cursor:pointer;" onclick="openChildModal()">Tippe hier um ein Kind hinzuzufuegen</p>`}
+          ${appData.children.length ? `<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;">${appData.children.map((c, idx) => `<div onclick="openChildDetail(${idx})" style="min-width:100px;background:var(--familie-bg);padding:16px;border-radius:var(--radius-md);text-align:center;cursor:pointer;"><div style="width:44px;height:44px;border-radius:50%;background:${c.color || 'var(--familie)'};display:flex;align-items:center;justify-content:center;margin:0 auto 8px;"><span class="material-symbols-outlined" style="font-size:24px;color:white;">${c.icon || 'face'}</span></div><div style="font-weight:600;font-size:14px;">${c.name}</div><div style="font-size:12px;color:var(--charcoal-light);">${c.age} Jahre</div></div>`).join('')}</div>` : `<p style="color:var(--charcoal-light);text-align:center;padding:20px;cursor:pointer;" onclick="openChildModal()">Tippe hier um ein Kind hinzuzufuegen</p>`}
         </div>
-        <div class="section"><div class="section-header"><h2 class="section-title">Anstehende Termine</h2></div>
-          ${appData.familyEvents.length ? `<div class="calendar-events" style="padding:0;">${appData.familyEvents.map(e => `<div class="event-item familie"><div class="event-time">${e.time}</div><div class="event-info"><div class="event-title">${e.title}</div><div class="event-location">${e.location || ''}</div></div><button onclick="event.stopPropagation();confirmDelete('Termin loeschen?',()=>{appData.familyEvents=appData.familyEvents.filter(x=>x.id!==${e.id})})" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">delete</span></button></div>`).join('')}</div>` : emptyState('event', 'Keine Termine', 'Erstelle den ersten Familientermin.', 'Termin hinzufuegen', 'openFamilyEventModal()')}
+        <div class="section"><div class="pillar-cards">
+          <div class="dashboard-pillar familie" onclick="navigate('familycalendar')"><div class="pillar-icon"><span class="material-symbols-outlined">calendar_month</span></div><div class="pillar-info"><div class="pillar-name">Familien-Kalender</div><div class="pillar-status">${appData.familyEvents.length} Termine</div></div><span class="material-symbols-outlined" style="color:var(--charcoal-light);">chevron_right</span></div>
+          <div class="dashboard-pillar familie" onclick="navigate('familyshopping')"><div class="pillar-icon"><span class="material-symbols-outlined">shopping_cart</span></div><div class="pillar-info"><div class="pillar-name">Familien-Einkaufsliste</div><div class="pillar-status">${openShopItems} Artikel offen</div></div><span class="material-symbols-outlined" style="color:var(--charcoal-light);">chevron_right</span></div>
+          <div class="dashboard-pillar familie" onclick="navigate('familymealplan')"><div class="pillar-icon"><span class="material-symbols-outlined">restaurant_menu</span></div><div class="pillar-info"><div class="pillar-name">Familien-Mahlzeiten</div><div class="pillar-status">${todayMeals} Mahlzeiten heute</div></div><span class="material-symbols-outlined" style="color:var(--charcoal-light);">chevron_right</span></div>
+        </div></div>
+        <div class="section"><div class="section-header"><h2 class="section-title">Naechste Termine</h2><span class="section-link" onclick="openFamilyEventModal()">Termin +</span></div>
+          ${appData.familyEvents.length ? `<div class="calendar-events" style="padding:0;">${appData.familyEvents.slice(0, 3).map(e => `<div class="event-item familie"><div class="event-time">${e.time}</div><div class="event-info"><div class="event-title">${e.title}</div><div class="event-location">${e.person ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:${getChildColor(e.person)};color:white;padding:2px 8px;border-radius:10px;margin-right:4px;">${e.person}</span>` : ''}${e.location || ''}</div></div><button onclick="event.stopPropagation();confirmDelete('Termin loeschen?',()=>{appData.familyEvents=appData.familyEvents.filter(x=>x.id!==${e.id})})" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">delete</span></button></div>`).join('')}</div>` : emptyState('event', 'Keine Termine', 'Erstelle den ersten Familientermin.', 'Termin hinzufuegen', 'openFamilyEventModal()')}
         </div></div>`;
+    }
+
+    function getChildColor(name) {
+      const child = appData.children.find(c => c.name === name);
+      return child ? (child.color || 'var(--familie)') : 'var(--familie)';
+    }
+
+    function renderFamilyCalendar() {
+      const dayNames = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+      const today = new Date();
+      const currentMonth = today.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const eventDays = {};
+      appData.familyEvents.forEach(e => { if (e.day) { if (!eventDays[e.day]) eventDays[e.day] = []; eventDays[e.day].push(e); }});
+
+      let calendarHtml = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">';
+      dayNames.forEach(d => { calendarHtml += `<div style="font-size:11px;color:var(--charcoal-light);padding:8px 0;">${d}</div>`; });
+      for (let i = 0; i < firstDay; i++) calendarHtml += '<div></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const isToday = d === today.getDate();
+        const hasEvents = eventDays[d];
+        calendarHtml += `<div onclick="showDayEvents(${d})" style="padding:8px 4px;border-radius:8px;cursor:pointer;${isToday ? 'background:var(--familie);color:white;font-weight:600;' : ''}${hasEvents ? 'position:relative;' : ''}">
+          ${d}${hasEvents ? `<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);display:flex;gap:2px;">${hasEvents.slice(0,3).map(e => `<div style="width:4px;height:4px;border-radius:50%;background:${e.person ? getChildColor(e.person) : 'var(--familie)'}"></div>`).join('')}</div>` : ''}
+        </div>`;
+      }
+      calendarHtml += '</div>';
+
+      return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('familie')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Familien-Kalender</h1><button class="header-btn" onclick="openFamilyEventModal()"><span class="material-symbols-outlined">add</span></button></header>
+        <div style="padding:20px;"><div style="text-align:center;font-weight:600;font-size:16px;margin-bottom:16px;">${currentMonth}</div>${calendarHtml}</div>
+        ${appData.children.length ? `<div style="padding:0 20px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;">${appData.children.map(c => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;background:${c.color || 'var(--familie)'};color:white;padding:4px 10px;border-radius:12px;"><span class="material-symbols-outlined" style="font-size:14px;">${c.icon || 'face'}</span>${c.name}</span>`).join('')}</div>` : ''}
+        <div class="section"><div class="section-header"><h2 class="section-title">Alle Termine</h2></div>
+          ${appData.familyEvents.length ? appData.familyEvents.map(e => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--sand);">
+            <div style="min-width:50px;text-align:center;"><div style="font-size:20px;font-weight:600;">${e.day || '-'}</div><div style="font-size:11px;color:var(--charcoal-light);">${e.time}</div></div>
+            <div style="flex:1;"><div style="font-weight:500;">${e.title}</div><div style="font-size:12px;color:var(--charcoal-light);">${e.person ? `<span style="display:inline-flex;align-items:center;gap:2px;background:${getChildColor(e.person)};color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin-right:4px;">${e.person}</span>` : ''}${e.location || ''}</div></div>
+            <button onclick="confirmDelete('Termin loeschen?',()=>{appData.familyEvents=appData.familyEvents.filter(x=>x.id!==${e.id})})" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--charcoal-light);font-size:18px;">delete</span></button>
+          </div>`).join('') : '<p style="color:var(--charcoal-light);text-align:center;padding:20px;">Noch keine Termine</p>'}
+        </div></div>`;
+    }
+
+    function showDayEvents(day) {
+      const events = appData.familyEvents.filter(e => e.day === day);
+      if (!events.length) { openFamilyEventModal(day); return; }
+      showToast(events.length + ' Termin(e) am ' + day + '.');
+    }
+
+    function renderFamilyShopping() {
+      if (!appData.familyShoppingList) appData.familyShoppingList = [];
+      const grouped = {};
+      appData.familyShoppingList.forEach(item => {
+        const cat = item.category || 'Sonstiges';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(item);
+      });
+      const checkedCount = appData.familyShoppingList.filter(i => i.checked).length;
+      const totalCount = appData.familyShoppingList.length;
+
+      return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('familie')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Familien-Einkaufsliste</h1><button class="header-btn" onclick="openFamilyShoppingModal()"><span class="material-symbols-outlined">add</span></button></header>
+        ${totalCount ? `<div class="stats-row"><div class="stat-card"><div class="stat-value">${checkedCount}/${totalCount}</div><div class="stat-label">Erledigt</div></div><div class="stat-card"><div class="stat-value">${totalCount - checkedCount}</div><div class="stat-label">Noch offen</div></div></div>` : ''}
+        ${appData.children.length ? `<div style="padding:0 20px 12px;"><div style="font-size:12px;color:var(--charcoal-light);margin-bottom:8px;">Wer kauft ein?</div><div style="display:flex;gap:8px;">${['Alle', ...appData.children.map(c => c.name)].map(n => `<button onclick="filterFamilyShopping('${n}')" class="option-btn ${(uiState.familyShopFilter || 'Alle') === n ? 'selected' : ''}" style="padding:6px 12px;font-size:12px;">${n}</button>`).join('')}</div></div>` : ''}
+        ${Object.keys(grouped).length ? Object.entries(grouped).map(([cat, items]) => `
+          <div class="section"><div class="section-header"><h2 class="section-title">${cat}</h2></div>
+          ${items.filter(i => !uiState.familyShopFilter || uiState.familyShopFilter === 'Alle' || i.assignee === uiState.familyShopFilter).map(item => `
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sand);">
+              <div onclick="toggleFamilyShopItem(${item.id})" style="width:24px;height:24px;border-radius:50%;border:2px solid ${item.checked ? 'var(--success)' : 'var(--sand)'};background:${item.checked ? 'var(--success)' : 'transparent'};display:flex;align-items:center;justify-content:center;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;color:white;">${item.checked ? 'check' : ''}</span></div>
+              <div style="flex:1;${item.checked ? 'text-decoration:line-through;opacity:0.5;' : ''}"><div style="font-weight:500;">${item.text}</div>${item.amount ? `<div style="font-size:12px;color:var(--charcoal-light);">${item.amount}</div>` : ''}</div>
+              ${item.assignee && item.assignee !== 'Alle' ? `<span style="font-size:10px;background:${getChildColor(item.assignee)};color:white;padding:2px 8px;border-radius:10px;">${item.assignee}</span>` : ''}
+              <button onclick="confirmDelete('Artikel loeschen?',()=>{appData.familyShoppingList=appData.familyShoppingList.filter(x=>x.id!==${item.id});saveData();render();})" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--charcoal-light);font-size:18px;">delete</span></button>
+            </div>
+          `).join('')}</div>
+        `).join('') : emptyState('shopping_cart', 'Liste ist leer', 'Fuege den ersten Artikel hinzu.', 'Artikel hinzufuegen', 'openFamilyShoppingModal()')}
+      </div>`;
+    }
+
+    function toggleFamilyShopItem(id) {
+      const item = appData.familyShoppingList.find(i => i.id === id);
+      if (item) { item.checked = !item.checked; saveData(); render(); }
+    }
+
+    function filterFamilyShopping(name) {
+      uiState.familyShopFilter = name;
+      render();
+    }
+
+    function renderFamilyMealPlan() {
+      if (!appData.familyMealPlan) appData.familyMealPlan = {0:{},1:{},2:{},3:{},4:{},5:{},6:{}};
+      const dayNames = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+      const sd = uiState.familyMealDay || 0;
+      const plan = appData.familyMealPlan[sd] || {};
+      const slots = [{key:'fruehstueck',label:'Fruehstueck',icon:'egg_alt'},{key:'mittag',label:'Mittagessen',icon:'lunch_dining'},{key:'abend',label:'Abendessen',icon:'dinner_dining'}];
+
+      // Allergien sammeln
+      const allergies = appData.children.filter(c => c.allergies && c.allergies.length).map(c => ({ name: c.name, allergies: c.allergies, color: c.color }));
+
+      return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('familie')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Familien-Mahlzeiten</h1></header>
+        <div class="meal-day-tabs">${dayNames.map((d,i) => `<div class="meal-day-tab ${i===sd?'active':''}" onclick="uiState.familyMealDay=${i};render();"><div class="day-name">${d}</div><div class="day-num">${new Date().getDate()-new Date().getDay()+1+i}</div></div>`).join('')}</div>
+        ${allergies.length ? `<div style="padding:12px 20px;background:var(--warning);background:rgba(232,200,124,0.15);margin:0 20px 16px;border-radius:var(--radius-sm);"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><span class="material-symbols-outlined" style="font-size:18px;color:var(--warning);">warning</span><span style="font-size:13px;font-weight:500;">Allergien beachten</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;">${allergies.map(a => `<span style="font-size:11px;background:${a.color || 'var(--familie)'};color:white;padding:3px 8px;border-radius:10px;">${a.name}: ${a.allergies.join(', ')}</span>`).join('')}</div></div>` : ''}
+        ${slots.map(s => {
+          const meal = plan[s.key];
+          if (meal) return `<div class="meal-slot"><div class="meal-slot-header"><span class="meal-slot-label">${s.label}</span><span class="meal-slot-kcal">${meal.servings || appData.children.length + 2} Portionen</span></div><div class="meal-slot-content"><div class="meal-slot-icon"><span class="material-symbols-outlined">${s.icon}</span></div><div class="meal-slot-info"><div class="meal-slot-title">${meal.title}</div><div class="meal-slot-meta">${meal.note || ''}</div></div><button onclick="event.stopPropagation();appData.familyMealPlan[${sd}]['${s.key}']=null;saveData();render();" style="background:none;border:none;cursor:pointer;"><span class="material-symbols-outlined" style="color:var(--danger);font-size:18px;">close</span></button></div></div>`;
+          return `<div class="meal-slot empty" onclick="openFamilyMealModal(${sd},'${s.key}')"><div class="meal-slot-header"><span class="meal-slot-label">${s.label}</span></div><div class="meal-slot-content"><div class="meal-slot-icon"><span class="material-symbols-outlined">add</span></div><div class="meal-slot-info"><div class="meal-slot-title">Mahlzeit planen</div><div class="meal-slot-meta">Fuer die ganze Familie</div></div></div></div>`;
+        }).join('')}
+        <div style="padding:20px;"><button class="btn btn-secondary" style="width:100%;" onclick="addMealsToFamilyShopping()"><span class="material-symbols-outlined">add_shopping_cart</span>Zutaten zur Einkaufsliste</button></div>
+      </div>`;
+    }
+
+    function openChildDetail(idx) {
+      uiState.selectedChild = idx;
+      navigate('childdetail');
+    }
+
+    function renderChildDetail() {
+      const idx = uiState.selectedChild || 0;
+      const child = appData.children[idx];
+      if (!child) return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('familie')"><span class="material-symbols-outlined">arrow_back</span></button><h1>Kind</h1></header><p style="padding:40px;text-align:center;">Kind nicht gefunden</p></div>`;
+
+      return `<div class="screen active"><header class="detail-header"><button class="back-btn" onclick="navigate('familie')"><span class="material-symbols-outlined">arrow_back</span></button><h1>${child.name}</h1><button class="header-btn" onclick="editChildInfo(${idx})"><span class="material-symbols-outlined">edit</span></button></header>
+        <div style="text-align:center;padding:24px;background:var(--familie-bg);margin:20px;border-radius:var(--radius-md);">
+          <div style="width:80px;height:80px;border-radius:50%;background:${child.color || 'var(--familie)'};display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><span class="material-symbols-outlined" style="font-size:44px;color:white;">${child.icon || 'face'}</span></div>
+          <div style="font-size:24px;font-weight:600;font-family:var(--font-display);">${child.name}</div>
+          <div style="font-size:14px;color:var(--charcoal-light);">${child.age} Jahre alt</div>
+          ${child.birthday ? `<div style="font-size:12px;color:var(--charcoal-light);margin-top:4px;"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">cake</span> ${child.birthday}</div>` : ''}
+        </div>
+
+        <div class="section">
+          <div class="section-header"><h2 class="section-title">Wichtige Infos</h2><span class="section-link" onclick="editChildInfo(${idx})">Bearbeiten</span></div>
+          <div style="display:grid;gap:12px;">
+            <div style="padding:16px;background:var(--cream);border-radius:var(--radius-sm);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="material-symbols-outlined" style="color:var(--danger);">medical_information</span><span style="font-weight:500;">Allergien & Unvertraeglichkeiten</span></div>
+              ${child.allergies && child.allergies.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">${child.allergies.map(a => `<span style="font-size:12px;background:var(--danger);color:white;padding:4px 10px;border-radius:12px;">${a}</span>`).join('')}</div>` : `<p style="font-size:13px;color:var(--charcoal-light);">Keine eingetragen</p>`}
+            </div>
+            <div style="padding:16px;background:var(--cream);border-radius:var(--radius-sm);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="material-symbols-outlined" style="color:var(--karriere);">straighten</span><span style="font-weight:500;">Kleidergroessen</span></div>
+              ${child.sizes ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:13px;">
+                ${child.sizes.clothes ? `<div><div style="color:var(--charcoal-light);">Kleidung</div><div style="font-weight:600;">${child.sizes.clothes}</div></div>` : ''}
+                ${child.sizes.shoes ? `<div><div style="color:var(--charcoal-light);">Schuhe</div><div style="font-weight:600;">${child.sizes.shoes}</div></div>` : ''}
+                ${child.sizes.height ? `<div><div style="color:var(--charcoal-light);">Groesse</div><div style="font-weight:600;">${child.sizes.height} cm</div></div>` : ''}
+              </div>` : `<p style="font-size:13px;color:var(--charcoal-light);">Keine eingetragen</p>`}
+            </div>
+            <div style="padding:16px;background:var(--cream);border-radius:var(--radius-sm);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="material-symbols-outlined" style="color:var(--sport);">local_hospital</span><span style="font-weight:500;">Arzt / Kinderarzt</span></div>
+              ${child.doctor ? `<div style="font-size:13px;"><div style="font-weight:500;">${child.doctor.name || ''}</div><div style="color:var(--charcoal-light);">${child.doctor.phone || ''}</div><div style="color:var(--charcoal-light);">${child.doctor.address || ''}</div></div>` : `<p style="font-size:13px;color:var(--charcoal-light);">Nicht eingetragen</p>`}
+            </div>
+            <div style="padding:16px;background:var(--cream);border-radius:var(--radius-sm);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="material-symbols-outlined" style="color:var(--ernaehrung);">school</span><span style="font-weight:500;">Schule / Kita</span></div>
+              ${child.school ? `<div style="font-size:13px;"><div style="font-weight:500;">${child.school.name || ''}</div><div style="color:var(--charcoal-light);">${child.school.contact || ''}</div><div style="color:var(--charcoal-light);">${child.school.address || ''}</div></div>` : `<p style="font-size:13px;color:var(--charcoal-light);">Nicht eingetragen</p>`}
+            </div>
+            <div style="padding:16px;background:var(--cream);border-radius:var(--radius-sm);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="material-symbols-outlined" style="color:var(--selfcare);">emergency</span><span style="font-weight:500;">Notfallkontakt</span></div>
+              ${child.emergency ? `<div style="font-size:13px;"><div style="font-weight:500;">${child.emergency.name || ''}</div><div style="color:var(--charcoal-light);">${child.emergency.phone || ''}</div><div style="color:var(--charcoal-light);">${child.emergency.relation || ''}</div></div>` : `<p style="font-size:13px;color:var(--charcoal-light);">Nicht eingetragen</p>`}
+            </div>
+          </div>
+        </div>
+        <div style="padding:20px;"><button class="btn btn-secondary" style="width:100%;color:var(--danger);border-color:var(--danger);" onclick="confirmDelete('${child.name} wirklich entfernen?',()=>{appData.children.splice(${idx},1);saveData();navigate('familie');})"><span class="material-symbols-outlined">delete</span>Kind entfernen</button></div>
+      </div>`;
+    }
+
+    function editChildInfo(idx) {
+      const child = appData.children[idx] || {};
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay active';
+      overlay.id = 'childEditModal';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+      const colors = ['#D4A5A5','#A8B4C9','#9CB8A8','#C4A8C9','#C9A87C','#7CB8B8'];
+
+      overlay.innerHTML = `<div class="modal" style="max-height:90vh;overflow-y:auto;">
+        <div class="modal-header"><h2 class="modal-title">${child.name ? child.name + ' bearbeiten' : 'Kind hinzufuegen'}</h2><button class="modal-close" onclick="document.getElementById('childEditModal').remove()"><span class="material-symbols-outlined">close</span></button></div>
+        <div style="max-height:60vh;overflow-y:auto;padding:4px;">
+          <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="ce_name" value="${child.name || ''}" placeholder="z.B. Emma"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group"><label class="form-label">Alter</label><input type="number" class="form-input" id="ce_age" value="${child.age || ''}" min="0" max="18" placeholder="5"></div>
+            <div class="form-group"><label class="form-label">Geburtstag</label><input type="text" class="form-input" id="ce_birthday" value="${child.birthday || ''}" placeholder="15.03."></div>
+          </div>
+          <div class="form-group"><label class="form-label">Farbe</label><div style="display:flex;gap:8px;">${colors.map(c => `<div onclick="this.parentElement.querySelectorAll('div').forEach(d=>d.style.outline='none');this.style.outline='3px solid var(--charcoal)'" style="width:32px;height:32px;border-radius:50%;background:${c};cursor:pointer;${child.color === c ? 'outline:3px solid var(--charcoal);' : ''}" data-color="${c}"></div>`).join('')}</div></div>
+          <div class="form-group"><label class="form-label">Allergien (kommagetrennt)</label><input type="text" class="form-input" id="ce_allergies" value="${(child.allergies || []).join(', ')}" placeholder="z.B. Erdnuesse, Laktose"></div>
+          <div class="form-group"><label class="form-label">Kleidergroessen</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+              <input type="text" class="form-input" id="ce_clothes" value="${child.sizes?.clothes || ''}" placeholder="Kleidung (128)">
+              <input type="text" class="form-input" id="ce_shoes" value="${child.sizes?.shoes || ''}" placeholder="Schuhe (32)">
+              <input type="text" class="form-input" id="ce_height" value="${child.sizes?.height || ''}" placeholder="cm">
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Kinderarzt</label>
+            <input type="text" class="form-input" id="ce_doctor_name" value="${child.doctor?.name || ''}" placeholder="Name" style="margin-bottom:8px;">
+            <input type="text" class="form-input" id="ce_doctor_phone" value="${child.doctor?.phone || ''}" placeholder="Telefon">
+          </div>
+          <div class="form-group"><label class="form-label">Schule / Kita</label>
+            <input type="text" class="form-input" id="ce_school_name" value="${child.school?.name || ''}" placeholder="Name" style="margin-bottom:8px;">
+            <input type="text" class="form-input" id="ce_school_contact" value="${child.school?.contact || ''}" placeholder="Kontakt">
+          </div>
+          <div class="form-group"><label class="form-label">Notfallkontakt</label>
+            <input type="text" class="form-input" id="ce_emerg_name" value="${child.emergency?.name || ''}" placeholder="Name" style="margin-bottom:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <input type="text" class="form-input" id="ce_emerg_phone" value="${child.emergency?.phone || ''}" placeholder="Telefon">
+              <input type="text" class="form-input" id="ce_emerg_rel" value="${child.emergency?.relation || ''}" placeholder="Beziehung">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('childEditModal').remove()">Abbrechen</button><button class="btn btn-primary" onclick="saveChildInfo(${idx})">Speichern</button></div>
+      </div>`;
+      document.body.appendChild(overlay);
+    }
+
+    function saveChildInfo(idx) {
+      const name = document.getElementById('ce_name').value.trim();
+      if (!name) { showToast('Bitte einen Namen eingeben'); return; }
+
+      const colorEl = document.querySelector('#childEditModal [data-color][style*="outline: 3px"]') || document.querySelector('#childEditModal [data-color]');
+      const color = colorEl ? colorEl.dataset.color : '#D4A5A5';
+
+      const childData = {
+        name: name,
+        age: parseInt(document.getElementById('ce_age').value) || 0,
+        birthday: document.getElementById('ce_birthday').value.trim(),
+        color: color,
+        icon: 'face',
+        allergies: document.getElementById('ce_allergies').value.split(',').map(s => s.trim()).filter(Boolean),
+        sizes: {
+          clothes: document.getElementById('ce_clothes').value.trim(),
+          shoes: document.getElementById('ce_shoes').value.trim(),
+          height: document.getElementById('ce_height').value.trim()
+        },
+        doctor: {
+          name: document.getElementById('ce_doctor_name').value.trim(),
+          phone: document.getElementById('ce_doctor_phone').value.trim()
+        },
+        school: {
+          name: document.getElementById('ce_school_name').value.trim(),
+          contact: document.getElementById('ce_school_contact').value.trim()
+        },
+        emergency: {
+          name: document.getElementById('ce_emerg_name').value.trim(),
+          phone: document.getElementById('ce_emerg_phone').value.trim(),
+          relation: document.getElementById('ce_emerg_rel').value.trim()
+        }
+      };
+
+      if (idx >= 0 && idx < appData.children.length) {
+        appData.children[idx] = childData;
+      } else {
+        appData.children.push(childData);
+      }
+      saveData();
+      showToast(name + ' gespeichert!');
+      document.getElementById('childEditModal').remove();
+      render();
+    }
+
+    function openFamilyShoppingModal() {
+      const assignees = ['Alle', ...appData.children.map(c => c.name), 'Mama', 'Papa'];
+      openFormModal({ title: 'Einkaufsartikel', fields: [
+        { key: 'text', label: 'Artikel', type: 'text', placeholder: 'z.B. Milch' },
+        { key: 'amount', label: 'Menge', type: 'text', placeholder: 'z.B. 2 Liter' },
+        { key: 'category', label: 'Kategorie', type: 'select', options: [{value:'Lebensmittel',label:'Lebensmittel'},{value:'Haushalt',label:'Haushalt'},{value:'Kinder',label:'Kinder'},{value:'Schule',label:'Schule'},{value:'Sonstiges',label:'Sonstiges'}], value: 'Lebensmittel' },
+        { key: 'assignee', label: 'Wer kauft ein?', type: 'select', options: assignees.map(a => ({value:a,label:a})), value: 'Alle' }
+      ], onSave: (d) => {
+        if (!appData.familyShoppingList) appData.familyShoppingList = [];
+        appData.familyShoppingList.push({ id: nextId(appData.familyShoppingList), text: d.text||'Artikel', amount: d.amount, category: d.category||'Sonstiges', assignee: d.assignee||'Alle', checked: false });
+        showToast('Artikel hinzugefuegt!');
+      }});
+    }
+
+    function openFamilyMealModal(day, slot) {
+      const slotLabels = { fruehstueck: 'Fruehstueck', mittag: 'Mittagessen', abend: 'Abendessen' };
+      openFormModal({ title: slotLabels[slot] + ' planen', fields: [
+        { key: 'title', label: 'Was gibt es?', type: 'text', placeholder: 'z.B. Spaghetti Bolognese' },
+        { key: 'servings', label: 'Portionen', type: 'number', value: appData.children.length + 2, min: 1 },
+        { key: 'note', label: 'Notiz', type: 'text', placeholder: 'z.B. vegetarische Alternative fuer Emma' }
+      ], onSave: (d) => {
+        if (!appData.familyMealPlan) appData.familyMealPlan = {0:{},1:{},2:{},3:{},4:{},5:{},6:{}};
+        if (!appData.familyMealPlan[day]) appData.familyMealPlan[day] = {};
+        appData.familyMealPlan[day][slot] = { title: d.title||'Mahlzeit', servings: d.servings, note: d.note };
+        showToast(d.title + ' geplant!');
+      }});
+    }
+
+    function addMealsToFamilyShopping() {
+      const day = uiState.familyMealDay || 0;
+      const plan = appData.familyMealPlan[day] || {};
+      const meals = Object.values(plan).filter(Boolean);
+      if (!meals.length) { showToast('Keine Mahlzeiten geplant'); return; }
+      if (!appData.familyShoppingList) appData.familyShoppingList = [];
+      meals.forEach(m => {
+        appData.familyShoppingList.push({ id: nextId(appData.familyShoppingList), text: 'Zutaten fuer: ' + m.title, amount: m.servings + ' Portionen', category: 'Lebensmittel', assignee: 'Alle', checked: false });
+      });
+      saveData();
+      showToast(meals.length + ' Mahlzeit(en) zur Einkaufsliste hinzugefuegt!');
+      navigate('familyshopping');
     }
 
     function renderFinanzenDetail() {
@@ -1436,17 +1741,18 @@
       { key: 'priority', label: 'Prioritaet', type: 'radio', options: [{value:'high',label:'Hoch'},{value:'medium',label:'Mittel'},{value:'low',label:'Niedrig'}], value: 'medium' }
     ], onSave: (d) => { appData.tasks.push({ id: nextId(appData.tasks), text: d.text||'Neue Aufgabe', meta: d.meta||'', priority: d.priority||'medium', completed: false }); showToast('Aufgabe erstellt!'); } }); }
 
-    function openFamilyEventModal() { openFormModal({ title: 'Familientermin', fields: [
-      { key: 'title', label: 'Titel', type: 'text', placeholder: 'z.B. Zahnarzt Emma' },
-      { key: 'time', label: 'Uhrzeit', type: 'time', value: '15:00' },
-      { key: 'location', label: 'Ort', type: 'text', placeholder: 'z.B. Praxis Dr. Mueller' },
-      { key: 'person', label: 'Person', type: 'text', placeholder: 'z.B. Emma' }
-    ], onSave: (d) => { appData.familyEvents.push({ id: nextId(appData.familyEvents), title: d.title||'Termin', time: d.time||'', location: d.location||'', person: d.person||'' }); showToast('Termin hinzugefuegt!'); } }); }
+    function openFamilyEventModal(prefillDay) {
+      const persons = ['', ...appData.children.map(c => c.name), 'Mama', 'Papa', 'Alle'];
+      openFormModal({ title: 'Familientermin', fields: [
+        { key: 'title', label: 'Titel', type: 'text', placeholder: 'z.B. Zahnarzt Emma' },
+        { key: 'day', label: 'Tag im Monat', type: 'number', value: prefillDay || new Date().getDate(), min: 1, max: 31 },
+        { key: 'time', label: 'Uhrzeit', type: 'time', value: '15:00' },
+        { key: 'location', label: 'Ort', type: 'text', placeholder: 'z.B. Praxis Dr. Mueller' },
+        { key: 'person', label: 'Fuer wen?', type: 'select', options: persons.map(p => ({value:p,label:p||'Nicht zugewiesen'})), value: '' }
+      ], onSave: (d) => { appData.familyEvents.push({ id: nextId(appData.familyEvents), title: d.title||'Termin', day: parseInt(d.day)||new Date().getDate(), time: d.time||'', location: d.location||'', person: d.person||'' }); showToast('Termin hinzugefuegt!'); } });
+    }
 
-    function openChildModal() { openFormModal({ title: 'Kind hinzufuegen', fields: [
-      { key: 'name', label: 'Name', type: 'text', placeholder: 'Name des Kindes' },
-      { key: 'age', label: 'Alter', type: 'number', placeholder: '5', min: 0 }
-    ], onSave: (d) => { appData.children.push({ name: d.name||'Kind', age: d.age||0, icon: appData.children.length%2===0?'face':'face_6', color: 'var(--familie)' }); showToast(d.name + ' hinzugefuegt!'); } }); }
+    function openChildModal() { editChildInfo(-1); }
 
     function openTransactionModal() { openFormModal({ title: 'Transaktion erfassen', fields: [
       { key: 'name', label: 'Beschreibung', type: 'text', placeholder: 'z.B. REWE Einkauf' },
